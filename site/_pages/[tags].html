@@ -4,6 +4,6 @@ layout: gallery
 
 {% for post in site.posts %}
   {% if post.tags contains page.title %}
-    {% include 'photo-card' post: post %}
+    {% include 'photo_card' post: post %}
   {% endif %}
 {% endfor %}
