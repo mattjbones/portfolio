@@ -1,0 +1,10 @@
+---
+layout: gallery
+title: Gallery
+tagline: Film photography — landscapes, streets, and quiet moments.
+---
+
+{% assign photos = site.posts | sort: "date" | reverse %}
+{% for post in photos %}
+  {% include 'photo-card' post: post %}
+{% endfor %}
