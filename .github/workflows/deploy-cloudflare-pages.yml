@@ -30,8 +30,9 @@ jobs:
       - name: Build site
         env:
           # Needed by scripts/build.sh for downloading werf from a private repo.
+          # Use a custom secret name (GITHUB_* names are reserved by GitHub).
           # If omitted, GitHub's default token is used and may not have cross-repo access.
-          GITHUB_PAT: ${{ secrets.GITHUB_PAT }}
+          GITHUB_PAT: ${{ secrets.WERF_GH_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bash scripts/build.sh
 
