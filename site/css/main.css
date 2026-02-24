@@ -148,7 +148,7 @@ img {
 .site-header-inner {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 0 var(--gap);
+  padding: 0 clamp(16px, 4vw, 20px);
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -170,6 +170,8 @@ img {
 
 
 .site-nav a {
+  font-family: var(--font-hand);
+  font-size: 1.2rem;
   color: var(--fg-muted);
   transition: color 0.15s;
 }
@@ -250,23 +252,49 @@ img {
   height: 100%;
 }
 
-@media (max-width: 900px) {
+/* 8-col: scale spans from 12→8, roughly halve then round to even.
+   span-6→4, span-4→4, span-3→2, span-2→2 */
+@media (max-width: 1200px) {
   .gallery-grid {
-    grid-auto-rows: 120px;
+    grid-template-columns: repeat(8, 1fr);
+    grid-auto-rows: 130px;
   }
+  .photo-card-wrap {
+    grid-column: span clamp(2, calc(var(--col-span) * 8 / 12), 8);
+  }
+  .photo-card-wrap.is-hero { grid-column: 1 / -1; }
 }
 
-@media (max-width: 520px) {
+/* 6-col: halve all spans (6→3, 4→2, 3→2, 2→1 → floor to at least 1) */
+@media (max-width: 900px) {
   .gallery-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     grid-auto-rows: 120px;
   }
-
-  .photo-card-wrap { grid-column: span 1; }
-
-  .photo-card-wrap.is-hero {
-    grid-column: 1 / -1;
+  .photo-card-wrap {
+    grid-column: span clamp(1, calc(var(--col-span) * 6 / 12), 6);
   }
+  .photo-card-wrap.is-hero { grid-column: 1 / -1; }
+}
+
+/* 4-col: all cards span 2, heroes full width */
+@media (max-width: 640px) {
+  .gallery-grid {
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 110px;
+  }
+  .photo-card-wrap { grid-column: span 2; }
+  .photo-card-wrap.is-hero { grid-column: 1 / -1; }
+}
+
+/* 2-col: all cards span 1, heroes full width */
+@media (max-width: 400px) {
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 100px;
+  }
+  .photo-card-wrap { grid-column: span 1; }
+  .photo-card-wrap.is-hero { grid-column: 1 / -1; }
 }
 
 /* ── Photo card ── */
@@ -369,6 +397,7 @@ body.photo-page {
   background: #000;
   color: #e8e8e8;
   min-height: 100dvh;
+  overscroll-behavior-x: none;
 }
 
 .photo-hero {

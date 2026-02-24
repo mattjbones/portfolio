@@ -5,7 +5,7 @@ tagline: Film photography — landscapes, streets, and quiet moments.
 ---
 
 {% assign photos = site.posts | sort: "id" | reverse %}
-{% assign row_patterns = "6,3,3|3,6,3|3,3,6|6,4,2|6,2,4|4,6,2|4,2,6|2,6,4|2,4,6|4,4,4" | split: "|" %}
+{% assign row_patterns = "6,3,3|3,6,3|3,3,6|6,4,2|6,2,4|4,6,2|4,2,6|2,4,6|3,6,3|3,3,6" | split: "|" %}
 {% assign count = photos | size %}
 {% assign current_group = "" %}
 {% for post in photos %}

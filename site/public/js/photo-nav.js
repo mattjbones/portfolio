@@ -69,6 +69,16 @@
   if (prevEl) prevEl.addEventListener('click', function (e) { e.preventDefault(); navigate('prev'); });
   if (nextEl) nextEl.addEventListener('click', function (e) { e.preventDefault(); navigate('next'); });
 
+  // ── Shared snap-back helper ────────────────────────────────────────────────
+  function snapBack() {
+    carousel.classList.add('pn-snap-back');
+    carousel.style.transform = 'translateX(' + baseX + 'px)';
+    carousel.addEventListener('transitionend', function cleanup() {
+      carousel.classList.remove('pn-snap-back');
+      carousel.removeEventListener('transitionend', cleanup);
+    });
+  }
+
   // ── Trackpad / wheel horizontal swipe ────────────────────────────────────
   if (carousel) {
     let wheelDx      = 0;
@@ -93,7 +103,8 @@
       wheelDx = 0;
     }
 
-    carousel.addEventListener('wheel', function (e) {
+    // Listen on window so we intercept before native scroll can act on it.
+    window.addEventListener('wheel', function (e) {
       // Determine axis on first event of a gesture
       if (wheelLocked === null) {
         if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) {
@@ -104,6 +115,7 @@
       }
       if (wheelLocked === 'v') return;
 
+      // Always prevent native horizontal scroll on photo pages
       e.preventDefault();
 
       if (!wheelActive) {
@@ -137,15 +149,6 @@
   let touchLastT  = 0;
   let swipeLocked = null; // 'h' | 'v' | null
   let dragging    = false;
-
-  function snapBack() {
-    carousel.classList.add('pn-snap-back');
-    carousel.style.transform = 'translateX(' + baseX + 'px)';
-    carousel.addEventListener('transitionend', function cleanup() {
-      carousel.classList.remove('pn-snap-back');
-      carousel.removeEventListener('transitionend', cleanup);
-    });
-  }
 
   carousel.addEventListener('touchstart', function (e) {
     touchStartX = e.touches[0].clientX;
