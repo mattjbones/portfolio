@@ -77,5 +77,5 @@ else
 fi
 
 # Build site
-cd "$ROOT/site"
-exec "$WERF"
+cd "$ROOT"
+exec "$WERF" nowatch site

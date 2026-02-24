@@ -5,6 +5,56 @@ tagline: Film photography — landscapes, streets, and quiet moments.
 ---
 
 {% assign photos = site.posts | sort: "date" | reverse %}
+{% assign row_patterns = "6,3,3|3,6,3|3,3,6|6,4,2|6,2,4|4,6,2|4,2,6|2,6,4|2,4,6|4,4,4" | split: "|" %}
+{% assign count = photos | size %}
+{% assign current_group = "" %}
 {% for post in photos %}
-{% include 'photo_card' post: post %}
+  {% assign tags = post.tags | default: "" | split: " " %}
+  {% assign group_name = "" %}
+  {% assign date_tokens = post.date | date_to_string | split: " " %}
+  {% assign month = date_tokens[1] | default: "" %}
+  {% assign year = date_tokens[2] | default: "" %}
+  {% assign date_label = post.date %}
+  {% if month != "" and year != "" %}
+    {% assign date_label = month | append: " " | append: year %}
+  {% endif %}
+  {% for tag in tags %}
+    {% if tag contains "group-" %}
+      {% assign raw_group = tag | remove: "group-" %}
+      {% assign group_parts = raw_group | split: "-" %}
+      {% assign group_name = "" %}
+      {% for part in group_parts %}
+        {% assign word = part | capitalize %}
+        {% if forloop.first %}
+          {% assign group_name = word %}
+        {% else %}
+          {% assign group_name = group_name | append: " " | append: word %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  {% endfor %}
+  {% assign section_label = date_label %}
+  {% if group_name != "" %}
+    {% assign section_label = date_label | append: " | " | append: group_name %}
+  {% endif %}
+  {% if section_label != current_group %}
+    {% if forloop.index0 != 0 %}</div></section>{% endif %}
+    <section class="gallery-section">
+      <h2 class="gallery-section-title">{{ section_label }}</h2>
+      <div class="gallery-grid">
+    {% assign current_group = section_label %}
+  {% endif %}
+  {% assign idx = forloop.index0 %}
+  {% assign row = idx | divided_by: 3 %}
+  {% assign pos = idx | modulo: 3 %}
+  {% assign pattern_index = row | modulo: 6 %}
+  {% assign pattern = row_patterns[pattern_index] | split: "," %}
+  {% assign col_span = pattern[pos] %}
+  {% if tags contains "hero" %}
+    {% assign col_span = 6 %}
+  {% endif %}
+  <div class="photo-card-wrap{% if tags contains "hero" %} is-hero{% endif %}" style="--col-span:{{ col_span }}">
+    {% include 'photo_card' post: post %}
+  </div>
 {% endfor %}
+{% if count > 0 %}</div></section>{% endif %}

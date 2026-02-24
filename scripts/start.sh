@@ -90,6 +90,6 @@ else
 fi
 
 # Start werf in watch mode
-cd "$ROOT/site"
+cd "$ROOT"
 echo "Starting werf watch..."
-exec "$WERF" watch
+exec "$WERF" watch site

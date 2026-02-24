@@ -1,4 +1,5 @@
-<div class="photo-card">
+{% assign tags = post.tags | default: "" %}
+<div class="photo-card{% if tags contains "hero" %} photo-card--hero{% endif %}">
   <a href="{{ post.url }}">
     <img src="{{ post.thumb }}" alt="{{ post.title }}" loading="lazy">
     <div class="photo-card-overlay">
