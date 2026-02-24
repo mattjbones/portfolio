@@ -1,0 +1,263 @@
+/* ── Reset ── */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ── Variables ── */
+:root {
+  --bg: #fafafa;
+  --fg: #111;
+  --fg-muted: #666;
+  --border: #ddd;
+  --card-bg: #fff;
+  --card-shadow: rgba(0, 0, 0, 0.08);
+  --card-shadow-hover: rgba(0, 0, 0, 0.16);
+  --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --max-width: 1200px;
+  --gap: 1.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111;
+    --fg: #e8e8e8;
+    --fg-muted: #999;
+    --border: #333;
+    --card-bg: #1a1a1a;
+    --card-shadow: rgba(0, 0, 0, 0.3);
+    --card-shadow-hover: rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* ── Base ── */
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.6;
+  min-height: 100dvh;
+}
+
+a {
+  color: var(--fg);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* ── Typography ── */
+h1, h2, h3 {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.15rem; }
+
+/* ── Layout ── */
+.site-header {
+  border-bottom: 1px solid var(--border);
+  padding: 1.25rem 0;
+}
+
+.site-header-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--gap);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.site-title {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.site-nav {
+  display: flex;
+  gap: 1.25rem;
+  font-size: 0.9rem;
+}
+
+.site-nav a {
+  color: var(--fg-muted);
+  transition: color 0.15s;
+}
+
+.site-nav a:hover {
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.site-main {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 2rem var(--gap);
+}
+
+/* ── Gallery grid ── */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--gap);
+}
+
+/* ── Photo card ── */
+.photo-card {
+  background: var(--card-bg);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px var(--card-shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.photo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--card-shadow-hover);
+}
+
+.photo-card a {
+  display: block;
+}
+
+.photo-card img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.photo-card-body {
+  padding: 0.75rem 1rem;
+}
+
+.photo-card-title {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.photo-card-meta {
+  font-size: 0.8rem;
+  color: var(--fg-muted);
+}
+
+/* ── Single photo page ── */
+.photo-single {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.photo-single img {
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.photo-meta {
+  margin-top: 1.5rem;
+}
+
+.photo-meta table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.photo-meta th,
+.photo-meta td {
+  text-align: left;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.photo-meta th {
+  width: 140px;
+  color: var(--fg-muted);
+  font-weight: 400;
+}
+
+/* ── Tags ── */
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  margin-top: 0.75rem;
+}
+
+.tag-list a {
+  font-size: 0.8rem;
+  color: var(--fg-muted);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0.2rem 0.5rem;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.tag-list a:hover {
+  color: var(--fg);
+  border-color: var(--fg);
+  text-decoration: none;
+}
+
+/* ── About / prose ── */
+.prose {
+  max-width: 640px;
+  line-height: 1.7;
+}
+
+.prose p + p {
+  margin-top: 1rem;
+}
+
+.prose h2 {
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ── Page header ── */
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  margin-bottom: 0.25rem;
+}
+
+.page-header p {
+  color: var(--fg-muted);
+  font-size: 0.95rem;
+}
+
+/* ── Footer ── */
+.site-footer {
+  border-top: 1px solid var(--border);
+  padding: 1.5rem 0;
+  margin-top: 3rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--fg-muted);
+}
