@@ -1,21 +1,31 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ORIGINALS="site/public/photos/originals"
-THUMBS="site/public/photos/thumbs"
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ORIGINALS="$ROOT/site/public/photos/originals"
+THUMBS="$ROOT/site/public/photos/thumbs"
 
-mkdir -p "$THUMBS"
+if command -v magick &>/dev/null; then
+  CONVERT="magick"
+elif command -v convert &>/dev/null; then
+  CONVERT="convert"
+else
+  echo "ImageMagick not found, skipping thumbnail generation"
+  exit 0
+fi
 
-shopt -s nullglob
-for img in "$ORIGINALS"/*.{jpg,jpeg,png,tiff}; do
-  filename="$(basename "$img")"
-  thumb="$THUMBS/$filename"
+while IFS= read -r img; do
+  # Preserve subdirectory structure under thumbs/
+  rel="${img#"$ORIGINALS/"}"
+  thumb="$THUMBS/$rel"
+
+  mkdir -p "$(dirname "$thumb")"
 
   if [ -f "$thumb" ]; then
-    echo "Skip (exists): $filename"
+    echo "  skip (exists): $rel"
     continue
   fi
 
-  echo "Generating thumb: $filename"
-  convert "$img" -resize 600x600^ -gravity center -extent 600x600 -quality 85 "$thumb"
-done
+  echo "  generating: $rel"
+  "$CONVERT" "$img" -resize 800x800^ -gravity center -extent 800x800 -quality 85 "$thumb"
+done < <(find "$ORIGINALS" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.tiff" \) | sort)

@@ -1,9 +1,9 @@
 source: .
 destination: dist
 
-title: Film & Grain
-tagline: A film photography portfolio
-description: "Black and white film photography — landscapes, streets, and quiet moments."
+title: photos by matt
+tagline: film photography
+description: "Film photography — landscapes, streets, and quiet moments."
 url: https://filmandgrain.pages.dev
 baseurl: /
 
