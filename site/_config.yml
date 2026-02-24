@@ -1,0 +1,20 @@
+source: .
+destination: dist
+
+title: Film & Grain
+tagline: A film photography portfolio
+description: "Black and white film photography — landscapes, streets, and quiet moments."
+url: https://filmandgrain.pages.dev
+baseurl: /
+
+author:
+  name: Matt
+  username: mattjbones
+
+paginate: 16
+paginate_per_page: 16
+paginate_path: "/p:num"
+
+exclude:
+  - dist
+  - .gitignore
