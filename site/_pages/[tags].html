@@ -2,7 +2,8 @@
 layout: gallery
 ---
 
-{% for post in site.posts %}
+{% assign photos = site.posts | sort: "id" | reverse %}
+{% for post in photos %}
   {% if post.tags and post.tags contains page.title %}
     {% include 'photo_card' post: post %}
   {% endif %}

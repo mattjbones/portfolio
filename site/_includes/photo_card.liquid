@@ -4,7 +4,25 @@
     <img src="{{ post.thumb }}" alt="{{ post.title }}" loading="lazy">
     <div class="photo-card-overlay">
       <div class="photo-card-title">{{ post.title }}</div>
-      <div class="photo-card-meta">{{ post.film }} — {{ post.location }}</div>
+      <div class="photo-card-meta">
+        {% assign meta = "" %}
+        {% if post.film and post.film != "" %}
+          {% assign meta = post.film %}
+        {% endif %}
+        {% if post.camera and post.camera != "" %}
+          {% if meta != "" %}
+            {% assign meta = meta | append: " — " %}
+          {% endif %}
+          {% assign meta = meta | append: post.camera %}
+        {% endif %}
+        {% if post.location and post.location != "" %}
+          {% if meta != "" %}
+            {% assign meta = meta | append: " — " %}
+          {% endif %}
+          {% assign meta = meta | append: post.location %}
+        {% endif %}
+        {{ meta }}
+      </div>
     </div>
   </a>
 </div>
