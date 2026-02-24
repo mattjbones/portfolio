@@ -1,9 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Olympus OM-10 camera icon">
-  <rect width="64" height="64" rx="12" fill="#111111"/>
-  <rect x="8" y="22" width="48" height="26" rx="4" fill="#f3f3f3"/>
-  <rect x="16" y="18" width="16" height="8" rx="2" fill="#d8d8d8"/>
-  <rect x="38" y="18" width="12" height="6" rx="2" fill="#d8d8d8"/>
-  <circle cx="32" cy="35" r="11" fill="#222222"/>
-  <circle cx="32" cy="35" r="7" fill="#a9a9a9"/>
-  <text x="32" y="57" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="8" fill="#f3f3f3">om-10</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" aria-label="Olympus OM-10 camera icon" role="img" viewBox="0 0 64 64"><rect width="64" height="64" fill="#111" rx="12"/><rect width="48" height="26" x="8" y="22" fill="#f3f3f3" rx="4"/><rect width="16" height="8" x="16" y="18" fill="#d8d8d8" rx="2"/><rect width="12" height="6" x="38" y="18" fill="#d8d8d8" rx="2"/><circle cx="32" cy="35" r="11" fill="#222"/><circle cx="32" cy="35" r="7" fill="#a9a9a9"/><text x="32" y="57" fill="#f3f3f3" font-family="Arial, Helvetica, sans-serif" font-size="8" text-anchor="middle">om-10</text></svg>
