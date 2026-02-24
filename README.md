@@ -1,4 +1,4 @@
-# Portfolio Site Plan
+# photos by matt
 
 See [WERF.md](./WERF.md) for werf reference (binary, config, templates, variables, filters).
 
@@ -53,7 +53,7 @@ portfolio/
     new-photo-posts.sh      # creates stub _posts for new images in originals/
     extract-exif.sh         # optional EXIF reader (film scans rarely have useful data)
   WERF.md
-  PLAN.md
+  README.md
 ```
 
 ---
@@ -159,7 +159,7 @@ layout: gallery
 | Build output directory | `dist` |
 | Root directory | `/` |
 
-`scripts/build.sh` downloads the werf Linux binary (tagged by date, requires `GITHUB_PAT`), generates thumbs, then builds the site.
+`scripts/build.sh` downloads the werf Linux binary (tagged by date, requires `GITHUB_PAT`), generates thumbs, builds the site, then copies `site/_headers` to `dist/_headers`.
 
 ### Cloudflare cache headers
 
@@ -170,6 +170,10 @@ layout: gallery
 /css/*
   Cache-Control: public, max-age=86400
 ```
+
+Cloudflare Pages only applies custom headers from an output-root file named `_headers`. This repo keeps the source headers in `site/_headers`; the build script copies it to `dist/_headers` so image/CSS cache policies are actually applied.
+
+`max-age=31536000, immutable` means images can be cached by browsers/CDN for up to one year, so replace image URLs (or filenames) when publishing updated versions of an image.
 
 ---
 
@@ -182,9 +186,9 @@ layout: gallery
 
 ---
 
-## Todo
+## Open Items
 
 - [ ] Fill in metadata (title, film, camera, lens, location, tags) for the 19 real posts
 - [x] Wire up Cloudflare Pages (manual, in dashboard)
-- [ ] Add favicon
+- [x] Add favicon
 - [ ] About page content

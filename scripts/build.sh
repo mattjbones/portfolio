@@ -78,4 +78,10 @@ fi
 
 # Build site
 cd "$ROOT"
-exec "$WERF" nowatch site
+"$WERF" nowatch site
+
+# Cloudflare Pages requires a plain `_headers` file at the output root.
+# Werf currently emits `site/_headers` as `_headers.html`, so copy the raw file.
+if [ -f "$ROOT/site/_headers" ]; then
+  cp "$ROOT/site/_headers" "$ROOT/dist/_headers"
+fi
