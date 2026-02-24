@@ -34,6 +34,9 @@
   --border: #ddd;
   --card-shadow: rgba(0, 0, 0, 0.08);
   --header-bg: rgba(250, 250, 250, 0.82);
+  --section-chip-bg: rgba(255, 255, 255, 0.9);
+  --section-chip-border: rgba(0, 0, 0, 0.08);
+  --section-chip-shadow: rgba(0, 0, 0, 0.08);
   --font-hand: "Caveat", cursive;
   --font-serif: Georgia, "Times New Roman", serif;
   --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
@@ -49,6 +52,9 @@
   --border: #333;
   --card-shadow: rgba(0, 0, 0, 0.4);
   --header-bg: rgba(17, 17, 17, 0.72);
+  --section-chip-bg: rgba(20, 20, 20, 0.86);
+  --section-chip-border: rgba(255, 255, 255, 0.14);
+  --section-chip-shadow: rgba(0, 0, 0, 0.45);
   }
 }
 
@@ -151,28 +157,38 @@ img {
   gap: 2.5rem;
 }
 
+.gallery-section {
+  display: flex;
+  flex-direction: column;
+}
+
 .gallery-section-title {
   position: sticky;
-  top: 4.5rem;
+  bottom: 0.75rem;
   z-index: 25;
-  display: inline-block;
+  display: inline-flex;
+  align-self: flex-end;
+  order: 2;
+  width: fit-content;
   margin: 0;
-  padding: 0.28rem 0.35rem;
+  margin-top: 0.55rem;
+  margin-right: 0.75rem;
+  padding: 0.3rem 0.55rem;
   font-family: var(--font-body);
-  font-size: 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
   letter-spacing: 0.01em;
   text-transform: none;
   color: var(--fg);
-  background-image: linear-gradient(
-    to right,
-    rgba(0, 0, 0, 0.45) 0%,
-    transparent 100%
-  );
-  background-size: 120% 100%;
-  background-repeat: no-repeat;
+  background: var(--section-chip-bg);
+  border: 1px solid var(--section-chip-border);
+  border-radius: 999px;
+  box-shadow: 0 4px 14px var(--section-chip-shadow);
+  backdrop-filter: blur(4px);
 }
 
 .gallery-grid {
+  order: 1;
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   grid-auto-rows: 140px;
@@ -393,6 +409,18 @@ body.photo-page {
 }
 
 @media (hover: none), (pointer: coarse) {
+  .photo-nav,
+  .photo-pager--hero {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .hover-zone {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
   .photo-nav,
   .photo-pager--hero {
     opacity: 1;

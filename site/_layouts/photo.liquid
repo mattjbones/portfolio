@@ -9,7 +9,7 @@
     <a class="photo-nav-title" href="{{ site.baseurl }}">Photos by Matt</a>
   </nav>
 
-  {% assign posts = site.posts | sort: "date" | reverse %}
+  {% assign posts = site.posts | sort: "id" | reverse %}
   {% assign idx = nil %}
   {% for p in posts %}
     {% if p.url == page.url %}
