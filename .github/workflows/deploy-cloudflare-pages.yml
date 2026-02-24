@@ -15,7 +15,7 @@ jobs:
     permissions:
       contents: read
     env:
-      CLOUDFLARE_PAGES_PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT || 'filmandgrain' }}
+      CLOUDFLARE_PAGES_PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT || 'photosbymatt' }}
       DEPLOY_BRANCH: ${{ github.head_ref || github.ref_name }}
 
     steps:

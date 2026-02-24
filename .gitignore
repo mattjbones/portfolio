@@ -2,3 +2,4 @@
 .bin
 site/dist
 dist
+.wrangler

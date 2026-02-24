@@ -153,8 +153,10 @@ layout: gallery
 
 | Setting | Value |
 |---|---|
+| Pages project name | `photosbymatt` |
+| Production URL | `https://photosbymatt.pages.dev` |
 | Build command | `bash scripts/build.sh` |
-| Build output directory | `site/dist` |
+| Build output directory | `dist` |
 | Root directory | `/` |
 
 `scripts/build.sh` downloads the werf Linux binary (tagged by date, requires `GITHUB_PAT`), generates thumbs, then builds the site.
@@ -183,6 +185,6 @@ layout: gallery
 ## Todo
 
 - [ ] Fill in metadata (title, film, camera, lens, location, tags) for the 19 real posts
-- [ ] Wire up Cloudflare Pages (manual, in dashboard)
+- [x] Wire up Cloudflare Pages (manual, in dashboard)
 - [ ] Add favicon
 - [ ] About page content
