@@ -379,6 +379,18 @@ body.photo-page {
   pointer-events: auto;
 }
 
+@media (hover: none), (pointer: coarse) {
+  .photo-nav,
+  .photo-pager--hero {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .hover-zone {
+    display: none;
+  }
+}
+
 .photo-details {
   max-width: 680px;
   margin: 0 auto;
