@@ -3,3 +3,6 @@
 
 /css/*
   Cache-Control: public, max-age=86400
+
+/public/js/*
+  Cache-Control: public, max-age=86400

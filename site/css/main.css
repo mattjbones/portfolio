@@ -26,6 +26,43 @@
   animation: vt-fade-in 500ms ease;
 }
 
+/* ── View Transitions (directional slides) ── */
+@keyframes vt-slide-out-left  { from { transform: translateX(0); } to { transform: translateX(-30%); opacity: 0; } }
+@keyframes vt-slide-in-right  { from { transform: translateX(30%); opacity: 0; } to { transform: translateX(0); } }
+@keyframes vt-slide-out-right { from { transform: translateX(0); } to { transform: translateX(30%); opacity: 0; } }
+@keyframes vt-slide-in-left   { from { transform: translateX(-30%); opacity: 0; } to { transform: translateX(0); } }
+
+html[data-vt-dir="next"] ::view-transition-old(root) { animation: vt-slide-out-left  350ms ease both; }
+html[data-vt-dir="next"] ::view-transition-new(root) { animation: vt-slide-in-right  350ms ease both; }
+html[data-vt-dir="prev"] ::view-transition-old(root) { animation: vt-slide-out-right 350ms ease both; }
+html[data-vt-dir="prev"] ::view-transition-new(root) { animation: vt-slide-in-left   350ms ease both; }
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-vt-dir] ::view-transition-old(root),
+  html[data-vt-dir] ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+/* ── JS fallback transitions (for browsers without View Transitions API) ── */
+@keyframes pn-fade-in        { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pn-slide-in-next  { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes pn-slide-in-prev  { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+@keyframes pn-slide-out-next { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+@keyframes pn-slide-out-prev { from { transform: translateX(0); } to { transform: translateX(100%); } }
+
+.photo-hero.pn-in       { animation: pn-fade-in        300ms ease     both; }
+.photo-carousel.pn-snap-back    { transition: transform 300ms ease-out; }
+.photo-carousel.pn-swipe-commit { transition: transform 280ms ease-in; }
+.photo-carousel.pn-swipe-enter  { transition: transform 300ms ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .photo-hero.pn-in,
+  .photo-carousel.pn-snap-back,
+  .photo-carousel.pn-swipe-commit,
+  .photo-carousel.pn-swipe-enter { animation: none; transition: none; }
+}
+
 /* ── Variables ── */
 :root {
   --bg: #fafafa;
@@ -290,6 +327,43 @@ img {
   color: rgba(255,255,255,0.75);
 }
 
+/* ── Skeleton loader (photo page image loading) ── */
+@keyframes pn-shimmer {
+  from { background-position: 200% center; }
+  to   { background-position: -200% center; }
+}
+
+.photo-hero.pn-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0)    0%,
+    rgba(255,255,255,0.06) 45%,
+    rgba(255,255,255,0.12) 50%,
+    rgba(255,255,255,0.06) 55%,
+    rgba(255,255,255,0)    100%
+  );
+  background-size: 200% 100%;
+  animation: pn-shimmer 1.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .photo-hero.pn-skeleton::after { animation: none; }
+}
+
+/* ── Carousel ── */
+.photo-carousel {
+  display: flex;
+  width: 300vw;
+  height: 100dvh;
+  will-change: transform;
+  overflow: hidden;
+  /* Current panel is always the middle slot — always offset one panel left */
+  transform: translateX(-100vw);
+}
+
 /* ── Full-bleed photo page ── */
 body.photo-page {
   background: #000;
@@ -299,6 +373,11 @@ body.photo-page {
 
 .photo-hero {
   position: relative;
+}
+
+.photo-carousel-wrap {
+  position: relative;
+  height: 100dvh;
 }
 
 .photo-pager--hero {
@@ -362,8 +441,9 @@ body.photo-page {
 }
 
 .photo-hero {
-  width: 100%;
+  width: 100vw;
   height: 100dvh;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -389,6 +469,7 @@ body.photo-page {
 }
 
 .hover-zone--bottom {
+  position: absolute;
   bottom: 0;
   height: 120px;
   z-index: 5;
