@@ -76,6 +76,11 @@ else
   echo "ImageMagick not found, skipping thumbnail generation"
 fi
 
+# Enable analytics for production builds
+if [ "${PRODUCTION_BUILD:-false}" = "true" ]; then
+  echo "analytics: true" >> site/_config.yml
+fi
+
 # Build site
 cd "$ROOT"
 "$WERF" nowatch site
