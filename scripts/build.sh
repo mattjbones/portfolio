@@ -21,7 +21,7 @@ if [ -z "$AUTH_TOKEN" ]; then
 fi
 
 # Always download fresh in CI, use cache locally
-WERF_TAG=2026-02-24
+WERF_TAG=2026-02-25
 TAG="${WERF_TAG:-$(date +%Y-%m-%d)}"
 echo "Downloading werf-${PLATFORM} (tag: ${TAG})..."
 ASSET_NAME="werf-${PLATFORM}"
