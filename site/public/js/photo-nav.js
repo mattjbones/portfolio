@@ -46,13 +46,13 @@
     if (!url) return;
     sessionStorage.setItem('vtDir', dir);
     if (hasVT) document.documentElement.dataset.vtDir = dir;
-    location.href = url;
+    location.replace(url);
   }
 
   function navigateFromScroll(url) {
     // Scroll was the visual transition — skip entry animation on arrival
     sessionStorage.setItem('vtScrolled', '1');
-    location.href = url;
+    location.replace(url);
   }
 
   if (prevEl) prevEl.addEventListener('click', function (e) { e.preventDefault(); navigate('prev'); });
@@ -133,5 +133,29 @@
   addEventListener('keydown', function (e) {
     if (e.key === 'ArrowRight') navigate('next');
     if (e.key === 'ArrowLeft')  navigate('prev');
+  });
+
+  // ── Image error fallback: hide broken icon + retry with backoff ─────────
+  document.querySelectorAll('.photo-hero img').forEach(function (img) {
+    var heroEl  = img.closest('.photo-hero');
+    var attempt = 0;
+    img.addEventListener('load', function () {
+      img.style.visibility = '';
+      if (heroEl) heroEl.classList.remove('pn-skeleton');
+    });
+    img.addEventListener('error', function () {
+      if (attempt >= 3) return;
+      img.style.visibility = 'hidden';
+      if (heroEl) heroEl.classList.add('pn-skeleton');
+      var delay = [1000, 2000, 4000][attempt];
+      var src   = img.getAttribute('src');
+      attempt++;
+      setTimeout(function () {
+        img.removeAttribute('src');
+        img.setAttribute('src', src);
+      }, delay);
+    });
+    // Handle images that already errored before the script ran
+    if (img.complete && img.naturalWidth === 0 && img.src) img.dispatchEvent(new Event('error'));
   });
 })();
