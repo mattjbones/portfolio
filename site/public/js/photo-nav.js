@@ -1,30 +1,24 @@
 // Directional photo navigation: swipe, keyboard, and link click handling.
-// Uses View Transitions API when available, CSS class fallback otherwise.
+// Uses View Transitions API when available, plain navigation otherwise.
 //
-// Cross-document View Transitions (via <meta name="view-transition">) only
-// work reliably in Blink (Chrome/Edge). Safari has startViewTransition but
-// not cross-document support, so we gate on the Navigation API as a proxy.
+// Cross-document View Transitions only work reliably in Blink (Chrome/Edge).
+// We gate on the Navigation API as a proxy for full cross-document VT support.
 
 (function () {
-  const hasVT   = 'startViewTransition' in document && 'navigation' in window;
-  const carousel = document.querySelector('.photo-carousel');
-  const hero    = document.querySelector('.photo-hero--current');
-  const inDir   = sessionStorage.getItem('vtDir');
+  const hasVT = 'startViewTransition' in document && 'navigation' in window;
+  const hero  = document.querySelector('.photo-hero--current');
+  const inDir = sessionStorage.getItem('vtDir');
 
-  const hasPrev = !!document.querySelector('.photo-hero--prev img');
-  const hasNext = !!document.querySelector('.photo-hero--next img');
-  const baseX   = -window.innerWidth;
+  const hasPrev = !!document.querySelector('.photo-pager-link.prev');
+  const hasNext = !!document.querySelector('.photo-pager-link.next');
 
   // ── Entry animation (non-VT path) ──────────────────────────────────────────
-  if (!hasVT) {
-    if (!inDir && hero) {
-      // No direction (e.g. arrived from gallery) — plain fade in
-      hero.classList.add('pn-in');
-      hero.addEventListener('animationend', function cleanup() {
-        hero.classList.remove('pn-in');
-        hero.removeEventListener('animationend', cleanup);
-      });
-    }
+  if (!hasVT && !inDir && hero) {
+    hero.classList.add('pn-in');
+    hero.addEventListener('animationend', function cleanup() {
+      hero.classList.remove('pn-in');
+      hero.removeEventListener('animationend', cleanup);
+    });
   } else if (hasVT && inDir) {
     document.documentElement.dataset.vtDir = inDir;
   }
@@ -39,130 +33,78 @@
 
   if (!prevUrl && !nextUrl) return;
 
-  function navigate(dir, fromSwipe) {
+  function navigate(dir) {
     const url = dir === 'next' ? nextUrl : prevUrl;
     if (!url) return;
-
     sessionStorage.setItem('vtDir', dir);
-
-    if (hasVT && !fromSwipe) {
-      // Keyboard / click: use cross-document View Transition slide
-      document.documentElement.dataset.vtDir = dir;
-      location.href = url;
-      return;
-    }
-
-    // Swipe / wheel / non-VT: slide the carousel strip then navigate.
-    // VT is skipped here because its snapshot captures the page before JS
-    // runs, so the carousel would be in the wrong position in the transition.
-    if (carousel) {
-      const targetX = dir === 'next'
-        ? baseX - window.innerWidth
-        : baseX + window.innerWidth;
-      carousel.classList.add('pn-swipe-commit');
-      carousel.style.transform = 'translateX(' + targetX + 'px)';
-    }
-    setTimeout(function () { location.href = url; }, 280);
+    if (hasVT) document.documentElement.dataset.vtDir = dir;
+    location.href = url;
   }
 
-  // Wire prev/next link clicks to set direction
   if (prevEl) prevEl.addEventListener('click', function (e) { e.preventDefault(); navigate('prev'); });
   if (nextEl) nextEl.addEventListener('click', function (e) { e.preventDefault(); navigate('next'); });
 
-  // ── Shared snap-back helper ────────────────────────────────────────────────
+  if (!hero) return;
+
+  // ── Shared snap-back ───────────────────────────────────────────────────────
   function snapBack() {
-    carousel.classList.add('pn-snap-back');
-    carousel.style.transform = 'translateX(' + baseX + 'px)';
-    carousel.addEventListener('transitionend', function cleanup() {
-      carousel.classList.remove('pn-snap-back');
-      carousel.removeEventListener('transitionend', cleanup);
+    hero.classList.add('pn-snap-back');
+    hero.style.transform = '';
+    hero.addEventListener('transitionend', function cleanup() {
+      hero.classList.remove('pn-snap-back');
+      hero.style.transform = '';
+      hero.removeEventListener('transitionend', cleanup);
     });
   }
 
-  // ── Trackpad / wheel horizontal swipe ────────────────────────────────────
-  if (carousel) {
-    let wheelDx      = 0;
-    let wheelTimer   = null;
-    let wheelLocked  = null; // 'h' | 'v' | null
-    let wheelActive  = false;
+  // ── Trackpad / wheel horizontal swipe ─────────────────────────────────────
+  let wheelDx     = 0;
+  let wheelTimer  = null;
+  let wheelLocked = null;
 
-    function wheelCommitOrSnap() {
-      wheelTimer  = null;
-      wheelActive = false;
-      wheelLocked = null;
-
+  window.addEventListener('wheel', function (e) {
+    clearTimeout(wheelTimer);
+    if (wheelLocked === null) {
+      wheelLocked = Math.abs(e.deltaX) <= Math.abs(e.deltaY) ? 'v' : 'h';
+    }
+    if (wheelLocked === 'v') {
+      wheelTimer = setTimeout(function () { wheelLocked = null; }, 80);
+      return;
+    }
+    e.preventDefault();
+    wheelDx -= e.deltaX;
+    wheelTimer = setTimeout(function () {
       const dir = wheelDx < 0 ? 'next' : 'prev';
       const url = dir === 'next' ? nextUrl : prevUrl;
-      const committed = url && Math.abs(wheelDx) >= window.innerWidth * 0.3;
-
-      if (committed) {
-        navigate(dir, true);
-      } else {
-        snapBack();
+      if (url && Math.abs(wheelDx) >= window.innerWidth * 0.3) {
+        navigate(dir);
       }
-      wheelDx = 0;
-    }
+      wheelDx     = 0;
+      wheelLocked = null;
+    }, 80);
+  }, { passive: false });
 
-    // Listen on window so we intercept before native scroll can act on it.
-    window.addEventListener('wheel', function (e) {
-      // Determine axis on first event of a gesture
-      if (wheelLocked === null) {
-        if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) {
-          wheelLocked = 'v';
-        } else {
-          wheelLocked = 'h';
-        }
-      }
-      if (wheelLocked === 'v') return;
-
-      // Always prevent native horizontal scroll on photo pages
-      e.preventDefault();
-
-      if (!wheelActive) {
-        wheelActive = true;
-        carousel.classList.remove('pn-snap-back', 'pn-swipe-commit');
-        carousel.style.transition = 'none';
-      }
-
-      wheelDx -= e.deltaX;
-
-      // Block scrolling toward a missing neighbour
-      const constrained =
-        (wheelDx > 0 && !hasPrev) ? 0 :
-        (wheelDx < 0 && !hasNext) ? 0 :
-        wheelDx;
-
-      carousel.style.transform = 'translateX(' + (baseX + constrained) + 'px)';
-
-      // Debounce: commit/snap when wheel events stop
-      clearTimeout(wheelTimer);
-      wheelTimer = setTimeout(wheelCommitOrSnap, 80);
-    }, { passive: false });
-  }
-
-  // ── Touch swipe — drag the carousel strip ─────────────────────────────────
-  if (!carousel) return;
-
+  // ── Touch swipe — drag the hero for visual feedback ───────────────────────
   let touchStartX = 0;
   let touchStartY = 0;
   let touchLastX  = 0;
   let touchLastT  = 0;
-  let swipeLocked = null; // 'h' | 'v' | null
+  let swipeLocked = null;
   let dragging    = false;
 
-  carousel.addEventListener('touchstart', function (e) {
+  hero.addEventListener('touchstart', function (e) {
     touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
     touchLastX  = touchStartX;
     touchLastT  = e.timeStamp;
     swipeLocked = null;
     dragging    = false;
-    carousel.classList.remove('pn-snap-back');
-    carousel.style.transition = 'none';
-    carousel.style.transform  = 'translateX(' + baseX + 'px)';
+    hero.classList.remove('pn-snap-back');
+    hero.style.transition = 'none';
+    hero.style.transform  = '';
   }, { passive: true });
 
-  carousel.addEventListener('touchmove', function (e) {
+  hero.addEventListener('touchmove', function (e) {
     if (swipeLocked === 'v') return;
     const dx = e.touches[0].clientX - touchStartX;
     const dy = e.touches[0].clientY - touchStartY;
@@ -176,17 +118,17 @@
       touchLastX = e.touches[0].clientX;
       touchLastT = e.timeStamp;
 
-      // Block dragging toward a missing neighbour
+      // Dampen drag toward a missing neighbour; 40% follow for normal direction
       const constrained =
-        (dx > 0 && !hasPrev) ? 0 :
-        (dx < 0 && !hasNext) ? 0 :
-        dx;
+        (dx > 0 && !hasPrev) ? dx * 0.1 :
+        (dx < 0 && !hasNext) ? dx * 0.1 :
+        dx * 0.4;
 
-      carousel.style.transform = 'translateX(' + (baseX + constrained) + 'px)';
+      hero.style.transform = 'translateX(' + constrained + 'px)';
     }
   }, { passive: false });
 
-  carousel.addEventListener('touchend', function (e) {
+  hero.addEventListener('touchend', function (e) {
     if (!dragging) return;
     dragging = false;
 
@@ -202,13 +144,13 @@
     );
 
     if (committed) {
-      navigate(dir, true);
+      navigate(dir);
     } else {
       snapBack();
     }
   }, { passive: true });
 
-  carousel.addEventListener('touchcancel', function () {
+  hero.addEventListener('touchcancel', function () {
     if (!dragging) return;
     dragging = false;
     snapBack();

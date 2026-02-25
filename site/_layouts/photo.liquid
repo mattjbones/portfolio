@@ -33,27 +33,19 @@
     <a class="photo-nav-title" href="{{ site.baseurl }}">Photos by Matt</a>
   </nav>
 
-  <div class="photo-carousel-wrap">
-    <div class="photo-carousel">
-      <section class="photo-hero photo-hero--prev">
-        {% if prev %}<img src="{{ prev.image }}" alt="{{ prev.title }}" loading="lazy">{% endif %}
-      </section>
-      <section class="photo-hero photo-hero--current">
-        <img src="{{ page.image }}" alt="{{ page.title }}">
-      </section>
-      <section class="photo-hero photo-hero--next">
-        {% if next %}<img src="{{ next.image }}" alt="{{ next.title }}" loading="lazy">{% endif %}
-      </section>
+  <div class="photo-viewer">
+    <div class="photo-hero photo-hero--current">
+      <img src="{{ page.image }}" alt="{{ page.title }}">
     </div>
     <div class="hover-zone hover-zone--bottom" aria-hidden="true"></div>
     <nav class="photo-pager photo-pager--hero" aria-label="Photo navigation">
-    {% if prev %}
-    <a class="photo-pager-link prev" href="{{ prev.url }}">← previous</a>
-    {% endif %}
-    {% if next %}
-    <a class="photo-pager-link next" href="{{ next.url }}">next →</a>
-    {% endif %}
-  </nav>
+      {% if prev %}
+      <a class="photo-pager-link prev" href="{{ prev.url }}">← previous</a>
+      {% endif %}
+      {% if next %}
+      <a class="photo-pager-link next" href="{{ next.url }}">next →</a>
+      {% endif %}
+    </nav>
   </div>
 
   <section class="photo-details">
