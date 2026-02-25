@@ -10,10 +10,18 @@
     {% endif %}
   {% endfor %}
   {% if idx != nil %}
-    {% assign prev_index = idx | minus: 1 %}
-    {% assign next_index = idx | plus: 1 %}
-    {% if prev_index >= 0 %}{% assign prev = posts[prev_index] %}{% endif %}
-    {% if next_index < posts.size %}{% assign next = posts[next_index] %}{% endif %}
+    {% assign prev_index  = idx | minus: 1 %}
+    {% assign next_index  = idx | plus: 1 %}
+    {% assign prev2_index = idx | minus: 2 %}
+    {% assign next2_index = idx | plus: 2 %}
+    {% assign prev3_index = idx | minus: 3 %}
+    {% assign next3_index = idx | plus: 3 %}
+    {% if prev_index  >= 0 %}{% assign prev  = posts[prev_index]  %}{% endif %}
+    {% if next_index  < posts.size %}{% assign next  = posts[next_index]  %}{% endif %}
+    {% if prev2_index >= 0 %}{% assign prev2 = posts[prev2_index] %}{% endif %}
+    {% if next2_index < posts.size %}{% assign next2 = posts[next2_index] %}{% endif %}
+    {% if prev3_index >= 0 %}{% assign prev3 = posts[prev3_index] %}{% endif %}
+    {% if next3_index < posts.size %}{% assign next3 = posts[next3_index] %}{% endif %}
   {% endif %}
   {% if prev or next %}
 <script type="speculationrules">
@@ -22,7 +30,12 @@
     {
       "urls": [{% if prev %}"{{ prev.url }}"{% if next %}, {% endif %}{% endif %}{% if next %}"{{ next.url }}"{% endif %}]
     }
-  ]
+  ]{% if prev2 or next2 %},
+  "prefetch": [
+    {
+      "urls": [{% if prev2 %}"{{ prev2.url }}"{% if next2 %}, {% endif %}{% endif %}{% if next2 %}"{{ next2.url }}"{% endif %}]
+    }
+  ]{% endif %}
 }
 </script>
   {% endif %}
@@ -35,8 +48,18 @@
 
   <div class="photo-viewer">
     <div class="photo-strip" id="photo-strip">
+      {% if prev3 %}
+      <div class="photo-hero photo-hero--far-prev" data-url="{{ prev3.url }}">
+        <img src="{{ prev3.image }}" alt="{{ prev3.title }}" loading="lazy">
+      </div>
+      {% endif %}
+      {% if prev2 %}
+      <div class="photo-hero photo-hero--prev2" data-url="{{ prev2.url }}">
+        <img src="{{ prev2.image }}" alt="{{ prev2.title }}" loading="lazy">
+      </div>
+      {% endif %}
       {% if prev %}
-      <div class="photo-hero" data-url="{{ prev.url }}">
+      <div class="photo-hero photo-hero--prev" data-url="{{ prev.url }}">
         <img src="{{ prev.image }}" alt="{{ prev.title }}" loading="lazy">
       </div>
       {% endif %}
@@ -44,8 +67,18 @@
         <img src="{{ page.image }}" alt="{{ page.title }}">
       </div>
       {% if next %}
-      <div class="photo-hero" data-url="{{ next.url }}">
+      <div class="photo-hero photo-hero--next" data-url="{{ next.url }}">
         <img src="{{ next.image }}" alt="{{ next.title }}" loading="lazy">
+      </div>
+      {% endif %}
+      {% if next2 %}
+      <div class="photo-hero photo-hero--next2" data-url="{{ next2.url }}">
+        <img src="{{ next2.image }}" alt="{{ next2.title }}" loading="lazy">
+      </div>
+      {% endif %}
+      {% if next3 %}
+      <div class="photo-hero photo-hero--far-next" data-url="{{ next3.url }}">
+        <img src="{{ next3.image }}" alt="{{ next3.title }}" loading="lazy">
       </div>
       {% endif %}
     </div>

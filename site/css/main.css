@@ -47,6 +47,12 @@ html[data-vt-dir="prev"] ::view-transition-new(root) { animation: vt-slide-in-le
 /* ── JS fallback transitions (for browsers without View Transitions API) ── */
 @keyframes pn-fade-in { from { opacity: 0; } to { opacity: 1; } }
 
+/* Discrete reveal used by scroll-driven far-panel animation (mobile only) */
+@keyframes pn-reveal-far {
+  from { content-visibility: hidden; }
+  to   { content-visibility: auto;   }
+}
+
 .photo-hero.pn-in       { animation: pn-fade-in        300ms ease     both; }
 .photo-hero--current.pn-snap-back { transition: transform 300ms ease-out; }
 
@@ -406,6 +412,59 @@ body.photo-page {
 }
 @media (max-width: 900px) {
   .photo-strip { overflow-x: scroll; }
+}
+
+/* ── Extended carousel panels: lazy-load 2 either side + 1 extra in scroll direction ── */
+
+/* Desktop (VT navigation — strip doesn't scroll): hide panels beyond immediate neighbours.
+   They're not reachable via scroll and VT loads each page fresh. */
+@media (hover: hover) and (pointer: fine) and (min-width: 901px) {
+  .photo-hero--prev2,
+  .photo-hero--far-prev,
+  .photo-hero--next2,
+  .photo-hero--far-next {
+    display: none;
+  }
+}
+
+/* Mobile/touch (strip is scrollable): use CSS scroll-driven animations to reveal the far
+   panels only when the user scrolls in that direction.
+   - .photo-hero--prev / --next each define a named view-timeline on the strip's scroll axis.
+   - timeline-scope on the strip hoists those timelines so sibling far panels can subscribe.
+   - The far panels start content-visibility:hidden (images not loaded) and switch to auto
+     (images load) as soon as the adjacent panel starts entering the scrollport.
+   Progressive enhancement: browsers without scroll-driven animation support keep the
+   far panels hidden, giving a clean 2-each-side fallback via --prev2/--next2. */
+@media (hover: none), (pointer: coarse), (max-width: 900px) {
+  #photo-strip {
+    timeline-scope: --pn-prev-tl, --pn-next-tl;
+  }
+
+  .photo-hero--prev { view-timeline: --pn-prev-tl inline; }
+  .photo-hero--next { view-timeline: --pn-next-tl inline; }
+
+  .photo-hero--far-prev,
+  .photo-hero--far-next {
+    content-visibility: hidden;
+  }
+
+  .photo-hero--far-prev {
+    animation-name: pn-reveal-far;
+    animation-duration: auto;
+    animation-timing-function: step-start;
+    animation-fill-mode: both;
+    animation-timeline: --pn-prev-tl;
+    animation-range: entry 0% exit 100%;
+  }
+
+  .photo-hero--far-next {
+    animation-name: pn-reveal-far;
+    animation-duration: auto;
+    animation-timing-function: step-start;
+    animation-fill-mode: both;
+    animation-timeline: --pn-next-tl;
+    animation-range: entry 0% exit 100%;
+  }
 }
 
 .photo-pager--hero {
