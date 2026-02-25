@@ -477,6 +477,7 @@ body.photo-page {
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  background: #1c1c1c;
 }
 
 .photo-hero img {
