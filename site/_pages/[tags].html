@@ -2,9 +2,22 @@
 layout: gallery
 ---
 
-{% assign photos = site.posts | sort: "id" | reverse %}
-{% for post in photos %}
-  {% if post.tags and post.tags contains page.title %}
-    {% include 'photo_card' post: post %}
-  {% endif %}
-{% endfor %}
+<div class="page-header">
+  <h1>{{ page.title }}</h1>
+</div>
+
+<section class="gallery-section">
+  <div class="gallery-grid">
+    {% assign photos = site.posts | sort: "id" | reverse %}
+    {% for post in photos %}
+      {% assign post_tags = post.tags | default: "" | split: " " %}
+      {% if post_tags contains page.title %}
+        {% assign col_span = 4 %}
+        {% if post_tags contains "hero" %}{% assign col_span = 12 %}{% endif %}
+        <div class="photo-card-wrap{% if post_tags contains "hero" %} is-hero{% endif %}" style="--col-span:{{ col_span }}">
+          {% include 'photo_card' post: post %}
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>

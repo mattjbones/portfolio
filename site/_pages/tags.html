@@ -1,0 +1,45 @@
+---
+layout: default
+title: Tags
+---
+
+<div class="page-header">
+  <h1>Tags</h1>
+</div>
+
+{% assign all_tags = "" %}
+{% for post in site.posts %}
+  {% assign post_tags = post.tags | default: "" | split: " " %}
+  {% for tag in post_tags %}
+    {% if tag != "" %}
+      {% assign existing = all_tags | split: " " %}
+      {% unless existing contains tag %}
+        {% if all_tags == "" %}
+          {% assign all_tags = tag %}
+        {% else %}
+          {% assign all_tags = all_tags | append: " " | append: tag %}
+        {% endif %}
+      {% endunless %}
+    {% endif %}
+  {% endfor %}
+{% endfor %}
+
+{% assign sorted_tags = all_tags | split: " " | sort %}
+
+<ul class="tags-index-list">
+  {% for tag in sorted_tags %}
+    {% assign count = 0 %}
+    {% for post in site.posts %}
+      {% assign post_tags = post.tags | default: "" | split: " " %}
+      {% if post_tags contains tag %}
+        {% assign count = count | plus: 1 %}
+      {% endif %}
+    {% endfor %}
+    <li class="tags-index-item">
+      <a href="{{ site.baseurl }}tags/{{ tag }}/" class="tags-index-link">
+        <span class="tags-index-name">{{ tag }}</span>
+        <span class="tags-index-count">{{ count }}</span>
+      </a>
+    </li>
+  {% endfor %}
+</ul>
