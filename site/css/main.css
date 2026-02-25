@@ -384,7 +384,28 @@ body.photo-page {
 .photo-viewer {
   position: relative;
   height: 100dvh;
-  overflow: hidden;
+}
+
+/* ── Photo scroll strip ── */
+.photo-strip {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  overflow-x: hidden;           /* Desktop: disabled — VT handles transitions */
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+
+.photo-strip::-webkit-scrollbar { display: none; }
+
+/* Enable native scroll only on touch / mobile */
+@media (hover: none), (pointer: coarse) {
+  .photo-strip { overflow-x: scroll; }
+}
+@media (max-width: 900px) {
+  .photo-strip { overflow-x: scroll; }
 }
 
 .photo-pager--hero {
@@ -449,8 +470,9 @@ body.photo-page {
 
 .photo-hero {
   position: relative;
-  width: 100%;
-  height: 100%;
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -34,8 +34,20 @@
   </nav>
 
   <div class="photo-viewer">
-    <div class="photo-hero photo-hero--current">
-      <img src="{{ page.image }}" alt="{{ page.title }}">
+    <div class="photo-strip" id="photo-strip">
+      {% if prev %}
+      <div class="photo-hero" data-url="{{ prev.url }}">
+        <img src="{{ prev.image }}" alt="{{ prev.title }}" loading="lazy">
+      </div>
+      {% endif %}
+      <div class="photo-hero photo-hero--current">
+        <img src="{{ page.image }}" alt="{{ page.title }}">
+      </div>
+      {% if next %}
+      <div class="photo-hero" data-url="{{ next.url }}">
+        <img src="{{ next.image }}" alt="{{ next.title }}" loading="lazy">
+      </div>
+      {% endif %}
     </div>
     <div class="hover-zone hover-zone--bottom" aria-hidden="true"></div>
     <nav class="photo-pager photo-pager--hero" aria-label="Photo navigation">

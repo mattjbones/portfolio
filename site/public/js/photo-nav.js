@@ -1,31 +1,39 @@
-// Directional photo navigation: swipe, keyboard, and link click handling.
+// Directional photo navigation: scroll-snap carousel, keyboard, and link click handling.
 // Uses View Transitions API when available, plain navigation otherwise.
 //
 // Cross-document View Transitions only work reliably in Blink (Chrome/Edge).
 // We gate on the Navigation API as a proxy for full cross-document VT support.
+//
+// On touch/mobile: a 3-panel scroll-snap strip (prev | current | next) provides
+// native momentum scrolling. After the strip snaps to a neighbour panel we fire
+// location.href to commit the navigation. The scroll IS the visual transition, so
+// the entry animation is suppressed on arrival (vtScrolled flag).
+//
+// On desktop: strip overflow is hidden (CSS); wheel + keyboard use VT as before.
 
 (function () {
-  const hasVT = 'startViewTransition' in document && 'navigation' in window;
-  const hero  = document.querySelector('.photo-hero--current');
-  const inDir = sessionStorage.getItem('vtDir');
+  const hasVT       = 'startViewTransition' in document && 'navigation' in window;
+  const hero        = document.querySelector('.photo-hero--current');
+  const inDir       = sessionStorage.getItem('vtDir');
+  const wasScrolled = sessionStorage.getItem('vtScrolled') === '1';
 
-  const hasPrev = !!document.querySelector('.photo-pager-link.prev');
-  const hasNext = !!document.querySelector('.photo-pager-link.next');
-
-  // ── Entry animation (non-VT path) ──────────────────────────────────────────
-  if (!hasVT && !inDir && hero) {
-    hero.classList.add('pn-in');
-    hero.addEventListener('animationend', function cleanup() {
-      hero.classList.remove('pn-in');
-      hero.removeEventListener('animationend', cleanup);
-    });
-  } else if (hasVT && inDir) {
-    document.documentElement.dataset.vtDir = inDir;
-  }
-
+  sessionStorage.removeItem('vtScrolled');
   if (inDir) sessionStorage.removeItem('vtDir');
 
-  // ── Navigation helpers ─────────────────────────────────────────────────────
+  // ── Entry animation (non-VT / non-scroll path) ─────────────────────────
+  if (!wasScrolled) {
+    if (!hasVT && !inDir && hero) {
+      hero.classList.add('pn-in');
+      hero.addEventListener('animationend', function cleanup() {
+        hero.classList.remove('pn-in');
+        hero.removeEventListener('animationend', cleanup);
+      });
+    } else if (hasVT && inDir) {
+      document.documentElement.dataset.vtDir = inDir;
+    }
+  }
+
+  // ── Navigation helpers ──────────────────────────────────────────────────
   const prevEl  = document.querySelector('.photo-pager-link.prev');
   const nextEl  = document.querySelector('.photo-pager-link.next');
   const prevUrl = prevEl?.href;
@@ -41,23 +49,62 @@
     location.href = url;
   }
 
+  function navigateFromScroll(url) {
+    // Scroll was the visual transition — skip entry animation on arrival
+    sessionStorage.setItem('vtScrolled', '1');
+    location.href = url;
+  }
+
   if (prevEl) prevEl.addEventListener('click', function (e) { e.preventDefault(); navigate('prev'); });
   if (nextEl) nextEl.addEventListener('click', function (e) { e.preventDefault(); navigate('next'); });
 
-  if (!hero) return;
+  // ── Scroll-strip initialisation & navigation ────────────────────────────
+  const strip = document.getElementById('photo-strip');
+  if (strip) {
+    const panels     = [...strip.children];
+    const currentIdx = panels.findIndex(function (p) { return p.classList.contains('photo-hero--current'); });
 
-  // ── Shared snap-back ───────────────────────────────────────────────────────
-  function snapBack() {
-    hero.classList.add('pn-snap-back');
-    hero.style.transform = '';
-    hero.addEventListener('transitionend', function cleanup() {
-      hero.classList.remove('pn-snap-back');
-      hero.style.transform = '';
-      hero.removeEventListener('transitionend', cleanup);
+    // Jump instantly to the current panel (the prev panel sits to its left)
+    if (currentIdx > 0) {
+      requestAnimationFrame(function () {
+        strip.scrollTo({ left: currentIdx * strip.clientWidth, behavior: 'instant' });
+      });
+    }
+
+    let scrollTimer = null;
+    let navigating  = false;
+    let initDone    = false;
+
+    // Allow 2 frames for the initial programmatic scroll to settle before
+    // treating scroll events as user intent.
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { initDone = true; });
     });
+
+    function onScrollEnd() {
+      if (!initDone || navigating) return;
+      const idx = Math.round(strip.scrollLeft / strip.clientWidth);
+      if (idx === currentIdx) return;
+      navigating = true;
+      var url = panels[idx] && panels[idx].dataset && panels[idx].dataset.url;
+      if (url) navigateFromScroll(url);
+    }
+
+    // scrollend fires natively on Chrome 114+.
+    // Debounce fallback covers iOS Safari which lacks scrollend.
+    strip.addEventListener('scroll', function () {
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(onScrollEnd, 120);
+    }, { passive: true });
+
+    if ('onscrollend' in window) {
+      strip.addEventListener('scrollend', onScrollEnd, { passive: true });
+    }
   }
 
-  // ── Trackpad / wheel horizontal swipe ─────────────────────────────────────
+  if (!hero) return;
+
+  // ── Trackpad / wheel horizontal swipe (desktop) ────────────────────────
   let wheelDx     = 0;
   let wheelTimer  = null;
   let wheelLocked = null;
@@ -76,87 +123,13 @@
     wheelTimer = setTimeout(function () {
       const dir = wheelDx < 0 ? 'next' : 'prev';
       const url = dir === 'next' ? nextUrl : prevUrl;
-      if (url && Math.abs(wheelDx) >= window.innerWidth * 0.3) {
-        navigate(dir);
-      }
+      if (url && Math.abs(wheelDx) >= window.innerWidth * 0.3) navigate(dir);
       wheelDx     = 0;
       wheelLocked = null;
     }, 80);
   }, { passive: false });
 
-  // ── Touch swipe — drag the hero for visual feedback ───────────────────────
-  let touchStartX = 0;
-  let touchStartY = 0;
-  let touchLastX  = 0;
-  let touchLastT  = 0;
-  let swipeLocked = null;
-  let dragging    = false;
-
-  hero.addEventListener('touchstart', function (e) {
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
-    touchLastX  = touchStartX;
-    touchLastT  = e.timeStamp;
-    swipeLocked = null;
-    dragging    = false;
-    hero.classList.remove('pn-snap-back');
-    hero.style.transition = 'none';
-    hero.style.transform  = '';
-  }, { passive: true });
-
-  hero.addEventListener('touchmove', function (e) {
-    if (swipeLocked === 'v') return;
-    const dx = e.touches[0].clientX - touchStartX;
-    const dy = e.touches[0].clientY - touchStartY;
-    if (swipeLocked === null) {
-      if (Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
-      swipeLocked = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
-    }
-    if (swipeLocked === 'h') {
-      e.preventDefault();
-      dragging   = true;
-      touchLastX = e.touches[0].clientX;
-      touchLastT = e.timeStamp;
-
-      // Dampen drag toward a missing neighbour; 40% follow for normal direction
-      const constrained =
-        (dx > 0 && !hasPrev) ? dx * 0.1 :
-        (dx < 0 && !hasNext) ? dx * 0.1 :
-        dx * 0.4;
-
-      hero.style.transform = 'translateX(' + constrained + 'px)';
-    }
-  }, { passive: false });
-
-  hero.addEventListener('touchend', function (e) {
-    if (!dragging) return;
-    dragging = false;
-
-    const dx       = e.changedTouches[0].clientX - touchStartX;
-    const dt       = e.timeStamp - touchLastT;
-    const velocity = dt > 0 ? Math.abs(e.changedTouches[0].clientX - touchLastX) / dt : 0;
-    const dir      = dx < 0 ? 'next' : 'prev';
-    const url      = dir === 'next' ? nextUrl : prevUrl;
-
-    const committed = url && (
-      Math.abs(dx) >= window.innerWidth * 0.3 ||
-      velocity >= 0.3
-    );
-
-    if (committed) {
-      navigate(dir);
-    } else {
-      snapBack();
-    }
-  }, { passive: true });
-
-  hero.addEventListener('touchcancel', function () {
-    if (!dragging) return;
-    dragging = false;
-    snapBack();
-  }, { passive: true });
-
-  // ── Keyboard arrows ────────────────────────────────────────────────────────
+  // ── Keyboard arrows ─────────────────────────────────────────────────────
   addEventListener('keydown', function (e) {
     if (e.key === 'ArrowRight') navigate('next');
     if (e.key === 'ArrowLeft')  navigate('prev');
