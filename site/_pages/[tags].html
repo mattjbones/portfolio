@@ -2,8 +2,9 @@
 layout: gallery
 ---
 
+{% assign current_tag = page.url | split: "/tags/" | last | split: "/" | first %}
 <div class="page-header">
-  <h1>{{ page.title }}</h1>
+  <h1>{{ current_tag }}</h1>
 </div>
 
 <section class="gallery-section">
@@ -11,7 +12,7 @@ layout: gallery
     {% assign photos = site.posts | sort: "id" | reverse %}
     {% for post in photos %}
       {% assign post_tags = post.tags | default: "" | split: " " %}
-      {% if post_tags contains page.title %}
+      {% if post_tags contains current_tag %}
         {% assign col_span = 4 %}
         {% if post_tags contains "hero" %}{% assign col_span = 12 %}{% endif %}
         <div class="photo-card-wrap{% if post_tags contains "hero" %} is-hero{% endif %}" style="--col-span:{{ col_span }}">
