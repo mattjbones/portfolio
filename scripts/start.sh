@@ -30,6 +30,7 @@ if [ -f "$WERF" ]; then
 fi
 
 if [ ! -f "$WERF" ] || [ "$STALE" = true ]; then
+  WERF_TAG=2026-02-25
   TAG="${WERF_TAG:-$(date +%Y-%m-%d)}"
   echo "Downloading werf-${PLATFORM} (tag: ${TAG})..."
   ASSET_NAME="werf-${PLATFORM}"
