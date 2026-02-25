@@ -35,6 +35,7 @@ jobs:
           # If omitted, GitHub's default token is used and may not have cross-repo access.
           GITHUB_PAT: ${{ secrets.WERF_GH_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PRODUCTION_BUILD: ${{ github.event_name != 'pull_request' }}
         run: bash scripts/build.sh
 
       - name: Deploy to Cloudflare Pages
