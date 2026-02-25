@@ -46,13 +46,13 @@
     if (!url) return;
     sessionStorage.setItem('vtDir', dir);
     if (hasVT) document.documentElement.dataset.vtDir = dir;
-    location.href = url;
+    location.replace(url);
   }
 
   function navigateFromScroll(url) {
     // Scroll was the visual transition — skip entry animation on arrival
     sessionStorage.setItem('vtScrolled', '1');
-    location.href = url;
+    location.replace(url);
   }
 
   if (prevEl) prevEl.addEventListener('click', function (e) { e.preventDefault(); navigate('prev'); });
