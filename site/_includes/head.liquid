@@ -112,6 +112,34 @@
 {% endif %}
 <meta name="twitter:title" content="{{ meta_title }}">
 <meta name="twitter:description" content="{{ card_description }}">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "{{ site.title | escape }}",
+  "url": "{{ site.url }}",
+  "description": "{{ site.description | escape }}",
+  "inLanguage": "en-GB"
+}
+</script>
+{% if page.layout == "photo" and page.image %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ImageObject",
+  "name": "{{ page.title | default: site.title | escape }}",
+  "description": "{{ card_description | escape }}",
+  "contentUrl": "{{ page.image }}",
+  "url": "{{ canonical_url }}",
+  "datePublished": "{{ page.date | date: "%Y-%m-%d" }}",
+  "inLanguage": "en-GB",
+  "creator": {
+    "@type": "Person",
+    "name": "{{ site.author.name | default: site.title | escape }}"
+  }
+}
+</script>
+{% endif %}
 <link rel="icon" type="image/svg+xml" href="{{ site.baseurl }}public/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

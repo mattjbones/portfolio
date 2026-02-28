@@ -6,9 +6,43 @@
 {% if disable_hero %}
   {% assign use_hero = false %}
 {% endif %}
+{% assign card_alt = post.title | default: "" %}
+{% if post.location and post.location != "" %}
+  {% if card_alt != "" %}
+    {% assign card_alt = card_alt | append: " — " %}
+  {% endif %}
+  {% assign card_alt = card_alt | append: post.location %}
+{% endif %}
+{% assign card_film = "" %}
+{% if post.film_name and post.film_name != "" %}
+  {% assign card_film = post.film_name %}
+  {% if post.film_speed and post.film_speed != "" %}
+    {% assign card_film = card_film | append: " " | append: post.film_speed %}
+  {% endif %}
+  {% if post.film_type and post.film_type != "" %}
+    {% assign card_film = card_film | append: " " | append: post.film_type %}
+  {% endif %}
+{% endif %}
+{% if post.camera and post.camera != "" %}
+  {% if card_alt != "" %}
+    {% assign card_alt = card_alt | append: " — shot on " %}
+  {% else %}
+    {% assign card_alt = "Shot on " %}
+  {% endif %}
+  {% assign card_alt = card_alt | append: post.camera %}
+{% endif %}
+{% if card_film != "" %}
+  {% if card_alt != "" %}
+    {% assign card_alt = card_alt | append: " — " %}
+  {% endif %}
+  {% assign card_alt = card_alt | append: card_film %}
+{% endif %}
+{% if card_alt == "" %}
+  {% assign card_alt = "Film photograph from Photos by Matt" %}
+{% endif %}
 <div class="photo-card{% if use_hero %} photo-card--hero{% endif %}">
   <a href="{{ post.url }}">
-    <img src="{{ post.thumb }}" alt="{{ post.title }}" loading="{{ image_loading }}">
+    <img src="{{ post.thumb }}" alt="{{ card_alt }}" loading="{{ image_loading }}">
     <div class="photo-card-overlay">
       <div class="photo-card-title">{{ post.title }}</div>
       <div class="photo-card-meta">

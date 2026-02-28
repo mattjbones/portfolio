@@ -15,6 +15,34 @@
     {% if prev_index >= 0 %}{% assign prev = posts[prev_index] %}{% endif %}
     {% if next_index < posts.size %}{% assign next = posts[next_index] %}{% endif %}
   {% endif %}
+  {% assign page_film = "" %}
+  {% if page.film_name and page.film_name != "" %}
+    {% assign page_film = page.film_name %}
+    {% if page.film_speed and page.film_speed != "" %}
+      {% assign page_film = page_film | append: " " | append: page.film_speed %}
+    {% endif %}
+    {% if page.film_type and page.film_type != "" %}
+      {% assign page_film = page_film | append: " " | append: page.film_type %}
+    {% endif %}
+  {% endif %}
+  {% assign page_alt = page.title | default: "" %}
+  {% if page.location and page.location != "" %}
+    {% if page_alt != "" %}{% assign page_alt = page_alt | append: " — " %}{% endif %}
+    {% assign page_alt = page_alt | append: page.location %}
+  {% endif %}
+  {% if page.camera and page.camera != "" %}
+    {% if page_alt != "" %}
+      {% assign page_alt = page_alt | append: " — shot on " %}
+    {% else %}
+      {% assign page_alt = "Shot on " %}
+    {% endif %}
+    {% assign page_alt = page_alt | append: page.camera %}
+  {% endif %}
+  {% if page_film != "" %}
+    {% if page_alt != "" %}{% assign page_alt = page_alt | append: " — " %}{% endif %}
+    {% assign page_alt = page_alt | append: page_film %}
+  {% endif %}
+  {% if page_alt == "" %}{% assign page_alt = "Film photograph from Photos by Matt" %}{% endif %}
   {% if prev or next %}
 <script type="speculationrules">
 {
@@ -37,15 +65,15 @@
     <div class="photo-strip" id="photo-strip">
       {% if prev %}
       <div class="photo-hero" data-url="{{ prev.url }}">
-        <img src="{{ prev.image }}" alt="{{ prev.title }}" loading="lazy">
+        <img src="{{ prev.image }}" alt="{{ prev.title | default: "Previous photo" }}" loading="lazy">
       </div>
       {% endif %}
       <div class="photo-hero photo-hero--current">
-        <img src="{{ page.image }}" alt="{{ page.title }}">
+        <img src="{{ page.image }}" alt="{{ page_alt }}">
       </div>
       {% if next %}
       <div class="photo-hero" data-url="{{ next.url }}">
-        <img src="{{ next.image }}" alt="{{ next.title }}" loading="lazy">
+        <img src="{{ next.image }}" alt="{{ next.title | default: "Next photo" }}" loading="lazy">
       </div>
       {% endif %}
     </div>

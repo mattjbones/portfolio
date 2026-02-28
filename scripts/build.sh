@@ -92,3 +92,8 @@ rm -rf "$ROOT/site/dist"
 if [ -f "$ROOT/site/_headers" ]; then
   cp "$ROOT/site/_headers" "$ROOT/dist/_headers"
 fi
+
+# Ensure robots.txt is served from the output root.
+if [ -f "$ROOT/site/public/robots.txt" ]; then
+  cp "$ROOT/site/public/robots.txt" "$ROOT/dist/robots.txt"
+fi
