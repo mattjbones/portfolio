@@ -1,5 +1,12 @@
 {% assign tags = post.tags | default: "" %}
-<div class="photo-card{% if tags contains "hero" %} photo-card--hero{% endif %}">
+{% assign use_hero = false %}
+{% if tags contains "hero" %}
+  {% assign use_hero = true %}
+{% endif %}
+{% if disable_hero %}
+  {% assign use_hero = false %}
+{% endif %}
+<div class="photo-card{% if use_hero %} photo-card--hero{% endif %}">
   <a href="{{ post.url }}">
     <img src="{{ post.thumb }}" alt="{{ post.title }}" loading="lazy">
     <div class="photo-card-overlay">

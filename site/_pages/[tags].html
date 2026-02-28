@@ -3,8 +3,121 @@ layout: gallery
 ---
 
 {% assign photos = site.posts | sort: "id" | reverse %}
+{% assign tag_count = 0 %}
+{% assign cameras_blob = "||" %}
+{% assign films_blob = "||" %}
+{% assign locations_blob = "||" %}
+{% assign lenses_blob = "||" %}
 {% for post in photos %}
   {% if post.tags and post.tags contains page.title %}
-    {% include 'photo_card' post: post %}
+    {% assign tag_count = tag_count | plus: 1 %}
+    {% assign camera_value = post.camera | default: "" | strip %}
+    {% if camera_value != "" %}
+      {% assign camera_token = "||" | append: camera_value | append: "||" %}
+      {% unless cameras_blob contains camera_token %}
+        {% assign cameras_blob = cameras_blob | append: camera_value | append: "||" %}
+      {% endunless %}
+    {% endif %}
+
+    {% assign film_value = post.film_name | default: "" | strip %}
+    {% if post.film_speed and post.film_speed != "" %}
+      {% assign film_value = film_value | append: " " | append: post.film_speed %}
+    {% endif %}
+    {% if post.film_type and post.film_type != "" %}
+      {% assign film_value = film_value | append: " " | append: post.film_type %}
+    {% endif %}
+    {% if film_value != "" %}
+      {% assign film_token = "||" | append: film_value | append: "||" %}
+      {% unless films_blob contains film_token %}
+        {% assign films_blob = films_blob | append: film_value | append: "||" %}
+      {% endunless %}
+    {% endif %}
+
+    {% assign location_value = post.location | default: "" | strip %}
+    {% if location_value != "" %}
+      {% assign location_token = "||" | append: location_value | append: "||" %}
+      {% unless locations_blob contains location_token %}
+        {% assign locations_blob = locations_blob | append: location_value | append: "||" %}
+      {% endunless %}
+    {% endif %}
+
+    {% assign lens_value = post.lens | default: "" | strip %}
+    {% if lens_value != "" %}
+      {% assign lens_token = "||" | append: lens_value | append: "||" %}
+      {% unless lenses_blob contains lens_token %}
+        {% assign lenses_blob = lenses_blob | append: lens_value | append: "||" %}
+      {% endunless %}
+    {% endif %}
   {% endif %}
 {% endfor %}
+{% assign cameras = cameras_blob | split: "||" %}
+{% assign films = films_blob | split: "||" %}
+{% assign locations = locations_blob | split: "||" %}
+{% assign lenses = lenses_blob | split: "||" %}
+
+<section class="page-header">
+  <h1>{{ page.title }}</h1>
+  <p>about {{ tag_count }} images</p>
+</section>
+
+<section class="tag-meta-summary" aria-label="Tag metadata summary">
+  <dl class="tag-meta-list">
+    <dt>Cameras</dt>
+    <dd>
+      {% assign first_camera = true %}
+      {% for camera in cameras %}
+        {% if camera != "" %}
+          {% unless first_camera %} • {% endunless %}{{ camera }}
+          {% assign first_camera = false %}
+        {% endif %}
+      {% endfor %}
+      {% if first_camera %}—{% endif %}
+    </dd>
+    <dt>Film</dt>
+    <dd>
+      {% assign first_film = true %}
+      {% for film in films %}
+        {% if film != "" %}
+          {% unless first_film %} • {% endunless %}{{ film }}
+          {% assign first_film = false %}
+        {% endif %}
+      {% endfor %}
+      {% if first_film %}—{% endif %}
+    </dd>
+    <dt>Lenses</dt>
+    <dd>
+      {% assign first_lens = true %}
+      {% for lens in lenses %}
+        {% if lens != "" %}
+          {% unless first_lens %} • {% endunless %}{{ lens }}
+          {% assign first_lens = false %}
+        {% endif %}
+      {% endfor %}
+      {% if first_lens %}—{% endif %}
+    </dd>
+    <dt>Locations</dt>
+    <dd>
+      {% assign first_location = true %}
+      {% for location in locations %}
+        {% if location != "" %}
+          {% unless first_location %} • {% endunless %}{{ location }}
+          {% assign first_location = false %}
+        {% endif %}
+      {% endfor %}
+      {% if first_location %}—{% endif %}
+    </dd>
+  </dl>
+</section>
+
+<section class="gallery-section">
+  <div class="gallery-grid">
+  {% for post in photos %}
+    {% if post.tags and post.tags contains page.title %}
+    <div class="photo-card-wrap" style="--col-span:3">
+      {% assign disable_hero = true %}
+      {% include 'photo_card' post: post %}
+    </div>
+    {% endif %}
+  {% endfor %}
+  </div>
+</section>

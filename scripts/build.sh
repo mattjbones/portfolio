@@ -83,6 +83,8 @@ fi
 
 # Build site
 cd "$ROOT"
+# Prevent stale in-source build artifacts from shadowing dynamic pages (e.g. [tags].html).
+rm -rf "$ROOT/site/dist"
 "$WERF" nowatch site
 
 # Cloudflare Pages requires a plain `_headers` file at the output root.
