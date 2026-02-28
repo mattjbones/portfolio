@@ -3,3 +3,6 @@
 site/dist
 dist
 .wrangler
+.env
+site/public/photos/originals/
+site/public/photos/thumbs/

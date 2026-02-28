@@ -61,9 +61,11 @@ title: "${date} / ${stem}"
 date: ${date}
 
 # Fill these in
-film:
-film_format: 35mm
-developed_by:
+film_name: ${xmp_film_name}
+film_format: ${xmp_film_format:-35mm}
+film_type: ${xmp_film_type}
+film_speed: ${xmp_film_speed}
+developed_by: ${xmp_developed_by}
 exposure_compensation: box
 camera:
 lens:
