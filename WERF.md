@@ -242,3 +242,30 @@ Reference in templates using `site.baseurl`:
 <link rel="stylesheet" href="{{ site.baseurl }}css/main.css">
 <img src="{{ site.baseurl }}public/photos/thumbs/image.jpg">
 ```
+
+## Dynamic tag pages
+
+A file named `_pages/[tags].html` generates one page per tag found across all posts. Werf creates a route for each tag.
+
+- `page.title` is set to the tag name
+- Tag page URLs: `/tags/<tag-name>/`
+- Always guard `contains` with `and post.tags` — werf errors on `contains` when `tags` is nil
+
+```html
+---
+layout: gallery
+---
+
+{% for post in site.posts %}
+  {% if post.tags and post.tags contains page.title %}
+    {% include 'photo_card' post: post %}
+  {% endif %}
+{% endfor %}
+```
+
+## Known quirks
+
+- `exclude` list in `_config.yml` was not respected during static file copy (bug — PR #47). Workaround: keep `dist` in the exclude list; the PR fix merges it correctly.
+- `contains` on a nil `tags` field causes a build error — always guard with `{% if post.tags and post.tags contains ... %}`.
+- `site.baseurl` is `/` — don't prepend it to paths that already start with `/` or you get `//public/...`.
+- Include filenames use underscores on disk (`photo_card.liquid`) but can be referenced either way in templates.

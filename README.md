@@ -1,18 +1,6 @@
 # photos by matt
 
-See [WERF.md](./WERF.md) for werf reference (binary, config, templates, variables, filters).
-
-## Constraints & honest notes on werf
-
-**Tags → auto-generated pages:** werf's `[tags].html` feature auto-generates one page per tag found across all posts. A single `_pages/[tags].html` template handles all tag pages — no need to create individual files per tag. Tag page URLs: `/tags/<tag-name>/`. The template gets `page.title` set to the tag name; filter posts manually in Liquid with `{% if post.tags and post.tags contains page.title %}` — the `and post.tags` guard is required because werf errors on `contains` when tags is nil.
-
-**No-JS tag browsing** means tag pages are real URLs: `/tags/agfa-apx-400/`, `/tags/scotland/` etc. Navigation between them is plain anchor links.
-
-**EXIF:** Film scans have no useful EXIF — all metadata (film, camera, lens, location) is entered manually in post frontmatter.
-
-**Thumbnail generation:** `scripts/generate-thumbs.sh` uses ImageMagick. Mirrors subdirectory structure from `originals/` into `thumbs/` (e.g. `originals/2026-02-24/x.jpg` → `thumbs/2026-02-24/x.jpg`).
-
-**New photo workflow:** Drop images into `site/public/photos/originals/YYYY-MM-DD/`, run `bash scripts/new-photo-posts.sh` to generate stub posts, then fill in metadata manually.
+See [WERF.md](./WERF.md) for werf reference (binary, config, templates, variables, filters, quirks).
 
 ---
 
@@ -31,8 +19,6 @@ portfolio/
       nav.liquid            # site title + nav links
       photo_card.liquid     # card with hover overlay (no visible caption)
     _posts/                 # one .md per photo, YYYY-MM-DD-slug.md
-      2026-02-24-0001-37.md
-      ...                   # 19 real photos as of 2026-02-24
     _pages/
       index.html            # home gallery (all photos, uses gallery layout)
       about.md
@@ -58,6 +44,38 @@ portfolio/
 
 ---
 
+## New photo workflow
+
+1. Drop scans into `site/public/photos/originals/YYYY-MM-DD/` (images must be in a dated subdirectory)
+2. Run `bash scripts/generate-thumbs.sh` to generate thumbnails
+3. Run `bash scripts/new-photo-posts.sh` to generate stub posts
+4. Fill in the metadata fields in each new post (see frontmatter schema below)
+
+---
+
+## Scripts
+
+**`scripts/generate-thumbs.sh`** — run before `./werf` (or `new-photo-posts.sh`):
+
+- Finds all images under `site/public/photos/originals/` recursively (jpg, jpeg, png, tiff)
+- Mirrors subdirectory structure into `site/public/photos/thumbs/`
+- Skips existing thumbs — safe to re-run incrementally
+- Resizes to 800×800 centre-crop at quality 85 using ImageMagick (`magick` or `convert`)
+
+**`scripts/new-photo-posts.sh`** — run after adding new photos:
+
+- Scans `site/public/photos/originals/YYYY-MM-DD/` for JPEG images
+- Creates `site/_posts/YYYY-MM-DD-<slug>.md` for any without an existing post
+- Slug is derived from the filename: underscores → hyphens, lowercased
+- Stubs out all frontmatter fields; film fields (`film_name`, `film_format`, `film_type`, `film_speed`, `developed_by`) are left blank and must be filled in manually
+- `film_format` defaults to `35mm`
+- Idempotent — safe to re-run, skips existing posts
+- `--dry-run` flag to preview without writing
+
+**`scripts/extract-exif.sh`** — optional; prints raw EXIF to stdout for a single image. Film scans rarely have useful EXIF.
+
+---
+
 ## Per-photo frontmatter schema
 
 ```yaml
@@ -66,16 +84,18 @@ layout: photo
 title: "2026-02-24 / 0001_37"
 date: 2026-02-24
 
-# Fill these in
-film:
-film_format: 35mm
+# Film metadata — fill these in manually
+film_name:
+film_format: 35mm          # defaults to 35mm
+film_type:
+film_speed:
 developed_by:
-exposure_compensation: box    # box / +1 / -1 / +2 etc.
+exposure_compensation: box  # box / +1 / -1 / +2 etc.
 camera:
 lens:
 location:
 
-tags:                         # space-separated, drives auto-generated tag pages
+tags:                       # space-separated, drives auto-generated tag pages
 
 image: /public/photos/originals/2026-02-24/0001_37.jpg
 thumb: /public/photos/thumbs/2026-02-24/0001_37.jpg
@@ -83,6 +103,8 @@ thumb: /public/photos/thumbs/2026-02-24/0001_37.jpg
 description:
 ---
 ```
+
+**EXIF note:** Film scans have no useful EXIF — all metadata (film, camera, lens, location) must be entered manually in post frontmatter.
 
 ---
 
@@ -113,42 +135,6 @@ description:
 
 ---
 
-## Tag page template
-
-`_pages/[tags].html`:
-
-```html
----
-layout: gallery
----
-
-{% for post in site.posts %}
-  {% if post.tags and post.tags contains page.title %}
-    {% include 'photo_card' post: post %}
-  {% endif %}
-{% endfor %}
-```
-
----
-
-## Scripts
-
-**`scripts/new-photo-posts.sh`** — run after adding new photos:
-- Scans `site/public/photos/originals/YYYY-MM-DD/` for images
-- Creates `site/_posts/YYYY-MM-DD-<slug>.md` for any without an existing post
-- Idempotent — safe to re-run, skips existing posts
-- `--dry-run` flag to preview without writing
-
-**`scripts/generate-thumbs.sh`** — run before `./werf`:
-- Finds all images under `site/public/photos/originals/` recursively
-- Mirrors subdirectory structure into `site/public/photos/thumbs/`
-- Skips existing thumbs (incremental)
-- Resizes to 800×800 crop with ImageMagick (`magick` or `convert`)
-
-**`scripts/extract-exif.sh`** — optional, rarely useful for film scans.
-
----
-
 ## Deployment on Cloudflare Pages
 
 | Setting | Value |
@@ -174,15 +160,6 @@ layout: gallery
 Cloudflare Pages only applies custom headers from an output-root file named `_headers`. This repo keeps the source headers in `site/_headers`; the build script copies it to `dist/_headers` so image/CSS cache policies are actually applied.
 
 `max-age=31536000, immutable` means images can be cached by browsers/CDN for up to one year, so replace image URLs (or filenames) when publishing updated versions of an image.
-
----
-
-## Known werf quirks
-
-- `exclude` list in `_config.yml` was not respected during static file copy (bug in werf — PR #47 open). Workaround: `dist` is in the exclude list and the PR fix merges it correctly.
-- `contains` on a nil `tags` field causes a build error — always guard with `{% if post.tags and post.tags contains ... %}`.
-- `site.baseurl` is `/` — don't prepend it to image paths that already start with `/` or you get `//public/...`.
-- Include filenames use underscores on disk (`photo_card.liquid`) but can be referenced either way in templates.
 
 ---
 
