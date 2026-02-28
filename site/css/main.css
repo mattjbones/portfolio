@@ -140,7 +140,7 @@ img {
 .site-header-inner {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 0 clamp(16px, 4vw, 20px);
+  padding: 0 clamp(8px, 2vw, 12px);
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -641,9 +641,55 @@ body.photo-page {
   font-weight: 700;
 }
 
+.page-header h2 {
+  font-family: var(--font-hand);
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
 .page-header p {
   color: var(--fg-muted);
   font-size: 0.9rem;
+}
+
+.tag-meta-summary {
+  margin: 0 0 1.25rem;
+  padding: 0.2rem 0 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.tag-meta-list {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 0.35rem 1rem;
+  margin: 0;
+}
+
+.tag-meta-list dt {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  line-height: 1.6;
+}
+
+.tag-meta-list dd {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--fg);
+}
+
+@media (max-width: 900px) {
+  .tag-meta-list {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+  }
+  .tag-meta-list dt {
+    margin-top: 0.35rem;
+  }
 }
 
 /* ── About / prose ── */

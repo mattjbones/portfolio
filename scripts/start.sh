@@ -83,5 +83,7 @@ fi
 
 # Start werf in watch mode
 cd "$ROOT"
+# Prevent stale in-source build artifacts from shadowing dynamic pages (e.g. [tags].html).
+rm -rf "$ROOT/site/dist"
 echo "Starting werf watch..."
 exec "$WERF" watch site
