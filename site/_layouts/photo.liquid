@@ -42,7 +42,7 @@
     {% if page_alt != "" %}{% assign page_alt = page_alt | append: " — " %}{% endif %}
     {% assign page_alt = page_alt | append: page_film %}
   {% endif %}
-  {% if page_alt == "" %}{% assign page_alt = "Film photograph from Photos by Matt" %}{% endif %}
+  {% if page_alt == "" %}{% assign page_alt = "Film photograph from photos by matt" %}{% endif %}
   {% if prev or next %}
 <script type="speculationrules">
 {
@@ -58,7 +58,7 @@
 <body class="photo-page">
   <div class="hover-zone hover-zone--top" aria-hidden="true"></div>
   <nav class="photo-nav">
-    <a class="photo-nav-title" href="{{ site.baseurl }}">Photos by Matt</a>
+    <a class="photo-nav-title" href="{{ site.baseurl }}">photos by matt</a>
   </nav>
 
   <div class="photo-viewer">
