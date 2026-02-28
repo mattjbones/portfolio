@@ -67,8 +67,10 @@
     <table class="photo-meta-table">
       {% if page.camera %}<tr><th>Camera</th><td>{{ page.camera }}</td></tr>{% endif %}
       {% if page.lens %}<tr><th>Lens</th><td>{{ page.lens }}</td></tr>{% endif %}
-      {% if page.film %}<tr><th>Film</th><td>{{ page.film }}</td></tr>{% endif %}
+      {% if page.film_name %}<tr><th>Film</th><td>{{ page.film_name }}</td></tr>{% endif %}
       {% if page.film_format %}<tr><th>Format</th><td>{{ page.film_format }}</td></tr>{% endif %}
+      {% if page.film_speed %}<tr><th>Speed</th><td>{{ page.film_speed }}</td></tr>{% endif %}
+      {% if page.film_type %}<tr><th>Type</th><td>{{ page.film_type }}</td></tr>{% endif %}
       {% if page.exposure_compensation %}<tr><th>Exposure</th><td>{{ page.exposure_compensation }}</td></tr>{% endif %}
       {% if page.developed_by %}<tr><th>Developed</th><td>{{ page.developed_by }}</td></tr>{% endif %}
       {% if page.location %}<tr><th>Location</th><td>{{ page.location }}</td></tr>{% endif %}

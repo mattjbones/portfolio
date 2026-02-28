@@ -6,8 +6,11 @@
       <div class="photo-card-title">{{ post.title }}</div>
       <div class="photo-card-meta">
         {% assign meta = "" %}
-        {% if post.film and post.film != "" %}
-          {% assign meta = post.film %}
+        {% if post.film_name and post.film_name != "" %}
+          {% assign film_str = post.film_name %}
+          {% if post.film_speed and post.film_speed != "" %}{% assign film_str = film_str | append: " " | append: post.film_speed %}{% endif %}
+          {% if post.film_type and post.film_type != "" %}{% assign film_str = film_str | append: " " | append: post.film_type %}{% endif %}
+          {% assign meta = film_str %}
         {% endif %}
         {% if post.camera and post.camera != "" %}
           {% if meta != "" %}
