@@ -41,6 +41,13 @@
 
   if (!prevUrl && !nextUrl) return;
 
+  let strip       = null;
+  let panels      = [];
+  let currentIdx  = -1;
+  let navigating  = false;
+  let initDone    = false;
+  let scrollTimer = null;
+
   function navigate(dir) {
     const url = dir === 'next' ? nextUrl : prevUrl;
     if (!url) return;
@@ -49,20 +56,41 @@
     location.replace(url);
   }
 
+  function navigateFromClick(dir) {
+    const url = dir === 'next' ? nextUrl : prevUrl;
+    if (!url || !strip || currentIdx < 0 || navigating) {
+      navigate(dir);
+      return;
+    }
+
+    const targetIdx = dir === 'next' ? currentIdx + 1 : currentIdx - 1;
+    const target    = panels[targetIdx];
+    if (!target) {
+      navigate(dir);
+      return;
+    }
+
+    navigating = true;
+    // Click-driven strip movement is the visual transition.
+    sessionStorage.setItem('vtScrolled', '1');
+    strip.scrollTo({ left: targetIdx * strip.clientWidth, behavior: 'smooth' });
+    setTimeout(function () { location.replace(url); }, 140);
+  }
+
   function navigateFromScroll(url) {
     // Scroll was the visual transition — skip entry animation on arrival
     sessionStorage.setItem('vtScrolled', '1');
     location.replace(url);
   }
 
-  if (prevEl) prevEl.addEventListener('click', function (e) { e.preventDefault(); navigate('prev'); });
-  if (nextEl) nextEl.addEventListener('click', function (e) { e.preventDefault(); navigate('next'); });
+  if (prevEl) prevEl.addEventListener('click', function (e) { e.preventDefault(); navigateFromClick('prev'); });
+  if (nextEl) nextEl.addEventListener('click', function (e) { e.preventDefault(); navigateFromClick('next'); });
 
   // ── Scroll-strip initialisation & navigation ────────────────────────────
-  const strip = document.getElementById('photo-strip');
+  strip = document.getElementById('photo-strip');
   if (strip) {
-    const panels     = [...strip.children];
-    const currentIdx = panels.findIndex(function (p) { return p.classList.contains('photo-hero--current'); });
+    panels = [...strip.children];
+    currentIdx = panels.findIndex(function (p) { return p.classList.contains('photo-hero--current'); });
 
     // Jump instantly to the current panel (the prev panel sits to its left)
     if (currentIdx > 0) {
@@ -70,10 +98,6 @@
         strip.scrollTo({ left: currentIdx * strip.clientWidth, behavior: 'instant' });
       });
     }
-
-    let scrollTimer = null;
-    let navigating  = false;
-    let initDone    = false;
 
     // Allow 2 frames for the initial programmatic scroll to settle before
     // treating scroll events as user intent.
