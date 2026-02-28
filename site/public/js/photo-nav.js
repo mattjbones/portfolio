@@ -9,7 +9,7 @@
 // location.href to commit the navigation. The scroll IS the visual transition, so
 // the entry animation is suppressed on arrival (vtScrolled flag).
 //
-// On desktop: strip overflow is hidden (CSS); wheel + keyboard use VT as before.
+// On desktop: strip overflow is hidden (CSS); keyboard + pager links navigate.
 
 (function () {
   const hasVT       = 'startViewTransition' in document && 'navigation' in window;
@@ -74,7 +74,7 @@
     // Click-driven strip movement is the visual transition.
     sessionStorage.setItem('vtScrolled', '1');
     strip.scrollTo({ left: targetIdx * strip.clientWidth, behavior: 'smooth' });
-    setTimeout(function () { location.replace(url); }, 140);
+    setTimeout(function () { location.replace(url); }, 240);
   }
 
   function navigateFromScroll(url) {
@@ -127,31 +127,6 @@
   }
 
   if (!hero) return;
-
-  // ── Trackpad / wheel horizontal swipe (desktop) ────────────────────────
-  let wheelDx     = 0;
-  let wheelTimer  = null;
-  let wheelLocked = null;
-
-  window.addEventListener('wheel', function (e) {
-    clearTimeout(wheelTimer);
-    if (wheelLocked === null) {
-      wheelLocked = Math.abs(e.deltaX) <= Math.abs(e.deltaY) ? 'v' : 'h';
-    }
-    if (wheelLocked === 'v') {
-      wheelTimer = setTimeout(function () { wheelLocked = null; }, 80);
-      return;
-    }
-    e.preventDefault();
-    wheelDx -= e.deltaX;
-    wheelTimer = setTimeout(function () {
-      const dir = wheelDx < 0 ? 'next' : 'prev';
-      const url = dir === 'next' ? nextUrl : prevUrl;
-      if (url && Math.abs(wheelDx) >= window.innerWidth * 0.3) navigate(dir);
-      wheelDx     = 0;
-      wheelLocked = null;
-    }, 80);
-  }, { passive: false });
 
   // ── Keyboard arrows ─────────────────────────────────────────────────────
   addEventListener('keydown', function (e) {
