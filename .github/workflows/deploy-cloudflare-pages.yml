@@ -12,8 +12,12 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event_name == 'pull_request' && 'preview' || 'production' }}
+      url: ${{ steps.deploy.outputs.deployment-url }}
     permissions:
       contents: read
+      deployments: write
       pull-requests: write
     env:
       CLOUDFLARE_PAGES_PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT || 'photosbymatt' }}
