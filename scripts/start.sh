@@ -81,15 +81,6 @@ else
   echo "Using cached werf binary"
 fi
 
-# Generate thumbnails if ImageMagick is available
-if command -v magick &> /dev/null; then
-  bash "$ROOT/scripts/generate-thumbs.sh"
-elif command -v convert &> /dev/null; then
-  bash "$ROOT/scripts/generate-thumbs.sh"
-else
-  echo "ImageMagick not found, skipping thumbnail generation"
-fi
-
 # Start werf in watch mode
 cd "$ROOT"
 echo "Starting werf watch..."

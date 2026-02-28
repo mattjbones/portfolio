@@ -17,6 +17,11 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 ORIGINALS="$ROOT/site/public/photos/originals"
 POSTS_DIR="$ROOT/site/_posts"
 DRY_RUN=false
+xmp_film_name=""
+xmp_film_format=""
+xmp_film_type=""
+xmp_film_speed=""
+xmp_developed_by=""
 
 if [[ "${1:-}" == "--dry-run" ]]; then
   DRY_RUN=true
