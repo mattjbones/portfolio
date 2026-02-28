@@ -188,6 +188,10 @@ img {
   gap: 2.5rem;
 }
 
+.gallery--continuous {
+  gap: 0.9rem;
+}
+
 .gallery-section {
   display: flex;
   flex-direction: column;
@@ -230,6 +234,7 @@ img {
 /* Span driven by --col-span custom property set inline */
 .photo-card-wrap {
   --row-span: 2;
+  position: relative;
   grid-column: span var(--col-span);
   grid-row: span var(--row-span);
   min-width: 0;

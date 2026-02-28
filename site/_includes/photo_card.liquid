@@ -8,7 +8,7 @@
 {% endif %}
 <div class="photo-card{% if use_hero %} photo-card--hero{% endif %}">
   <a href="{{ post.url }}">
-    <img src="{{ post.thumb }}" alt="{{ post.title }}" loading="lazy">
+    <img src="{{ post.thumb }}" alt="{{ post.title }}" loading="{{ image_loading }}">
     <div class="photo-card-overlay">
       <div class="photo-card-title">{{ post.title }}</div>
       <div class="photo-card-meta">

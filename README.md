@@ -53,6 +53,13 @@ portfolio/
 
 ## New photo workflow
 
+### TL;DR
+
+1. Put JPEGs + matching `.jpg.xmp` sidecars in `uploads/YYYY-MM-DD/`
+2. Run a safe local pass: `./scripts/new-photos.sh YYYY-MM-DD --dry-run`
+3. If output looks good, run publish: `./scripts/new-photos.sh YYYY-MM-DD`
+4. Open new files in `site/_posts/` and fill remaining fields (`description`, `tags`, `exposure_compensation`)
+
 1. Drop scans (JPEGs) and darktable XMP sidecars into `uploads/YYYY-MM-DD/`
    - XMP sidecars must be named `<file>.jpg.xmp` alongside each JPEG
 2. Run `./scripts/new-photos.sh YYYY-MM-DD` (add `--dry-run` to run locally first)

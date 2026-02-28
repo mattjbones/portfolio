@@ -89,6 +89,39 @@ yaml_quote() {
   value="${value//\'/\'\'}"
   printf "'%s'" "$value"
 }
+normalize_output_filename() {
+  local filename="${1-}"
+  local stem="${filename%.*}"
+  local ext="${filename##*.}"
+  local cleaned="$stem"
+
+  # Drop trailing placeholder markers like _### from output names.
+  cleaned="$(sed -E 's/_#+$//' <<<"$cleaned")"
+  # Keep only URL-friendly filename characters.
+  cleaned="$(python3 - "$cleaned" <<'PY'
+import re
+import sys
+import unicodedata
+
+value = sys.argv[1]
+value = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii")
+value = re.sub(r"[^A-Za-z0-9._-]+", "-", value)
+value = re.sub(r"-{2,}", "-", value).strip("-._")
+print(value or "photo")
+PY
+)"
+
+  printf '%s.%s\n' "$cleaned" "$ext"
+}
+url_encode_segment() {
+  local value="${1-}"
+  python3 - "$value" <<'PY'
+import sys
+import urllib.parse
+
+print(urllib.parse.quote(sys.argv[1], safe="-._~"))
+PY
+}
 rewrite_post_urls() {
   local post_file="$1"
   local orig_url="$2"
@@ -154,6 +187,20 @@ info "Mains:    $MAINS_DIR"
 info "Thumbs:   $THUMBS_DIR"
 info "Mode:     $MODE"
 echo ""
+
+# Ensure sanitized output filenames are unique before processing.
+normalized_manifest="$(mktemp)"
+trap 'rm -f "$normalized_manifest"' EXIT
+for src_jpg in "${JPEGS[@]}"; do
+  src_filename="$(basename "$src_jpg")"
+  normalize_output_filename "$src_filename" >> "$normalized_manifest"
+done
+collision="$(sort "$normalized_manifest" | uniq -d | head -n 1 || true)"
+if [[ -n "$collision" ]]; then
+  echo "Error: normalized filename collision after stripping suffixes: $collision"
+  echo "Please rename source files in $UPLOADS_DIR so normalized names are unique."
+  exit 1
+fi
 
 # ---------------------------------------------------------------------------
 # XMP parsing
@@ -246,11 +293,12 @@ info "Processing images..."
 mkdir -p "$MAINS_DIR" "$THUMBS_DIR"
 
 for src_jpg in "${JPEGS[@]}"; do
-  filename="$(basename "$src_jpg")"
+  src_filename="$(basename "$src_jpg")"
+  filename="$(normalize_output_filename "$src_filename")"
   if [[ -f "$MAINS_DIR/$filename" && -f "$THUMBS_DIR/$filename" ]]; then
     log "skip (exists): $filename"
   else
-    log "processing: $filename"
+    log "processing: $src_filename -> $filename"
     "$CONVERT" "$src_jpg" \
       -auto-orient -colorspace sRGB \
       -filter LanczosSharp -define filter:blur=0.95 \
@@ -359,16 +407,18 @@ info "Creating post stubs in $POSTS_DIR..."
 mkdir -p "$POSTS_DIR"
 
 for src_jpg in "${JPEGS[@]}"; do
-  filename="$(basename "$src_jpg")"
+  src_filename="$(basename "$src_jpg")"
+  filename="$(normalize_output_filename "$src_filename")"
   xmp_file="${src_jpg}.xmp"
+  encoded_filename="$(url_encode_segment "$filename")"
 
   parse_xmp "$xmp_file"
 
-  orig_url="$R2_PUBLIC_URL/photos/originals/$DATE/$filename"
-  thumb_url="$R2_PUBLIC_URL/photos/thumbs/$DATE/$filename"
+  orig_url="$R2_PUBLIC_URL/photos/originals/$DATE/$encoded_filename"
+  thumb_url="$R2_PUBLIC_URL/photos/thumbs/$DATE/$encoded_filename"
   if [[ "$MODE" == "local" ]]; then
-    orig_url="$LOCAL_PUBLIC_URL/originals/$DATE/$filename"
-    thumb_url="$LOCAL_PUBLIC_URL/thumbs/$DATE/$filename"
+    orig_url="$LOCAL_PUBLIC_URL/originals/$DATE/$encoded_filename"
+    thumb_url="$LOCAL_PUBLIC_URL/thumbs/$DATE/$encoded_filename"
   fi
 
   create_post "$filename" "$DATE" "$orig_url" "$thumb_url"

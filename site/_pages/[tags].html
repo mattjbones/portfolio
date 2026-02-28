@@ -2,7 +2,7 @@
 layout: gallery
 ---
 
-{% assign photos = site.posts | sort: "id" | reverse %}
+{% assign photos = site.posts | sort: "date" | reverse %}
 {% assign tag_count = 0 %}
 {% assign cameras_blob = "||" %}
 {% assign films_blob = "||" %}
@@ -115,7 +115,7 @@ layout: gallery
     {% if post.tags and post.tags contains page.title %}
     <div class="photo-card-wrap" style="--col-span:3">
       {% assign disable_hero = true %}
-      {% include 'photo_card' post: post %}
+      {% include 'photo_card' post: post, image_loading: "lazy" %}
     </div>
     {% endif %}
   {% endfor %}

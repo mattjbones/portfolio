@@ -2,24 +2,53 @@
 layout: gallery
 title: Gallery
 tagline: Film photography — landscapes, streets, and quiet moments.
+continuous_gallery: true
 ---
 
-{% assign photos = site.posts | sort: "id" | reverse %}
+{% assign photos = site.posts | sort: "date" | reverse %}
 {% assign row_patterns = "6,3,3|3,6,3|3,3,6|6,4,2|6,2,4|4,6,2|4,2,6|2,4,6|3,6,3|3,3,6" | split: "|" %}
 {% assign count = photos | size %}
 {% assign current_group = "" %}
 {% assign pattern_count = row_patterns | size %}
 {% assign layout_index = 0 %}
+{% assign section_index = -1 %}
 {% for post in photos %}
   {% assign tags = post.tags | default: "" | split: " " %}
   {% assign group_name = "" %}
-  {% assign date_tokens = post.date | date_to_string | split: " " %}
-  {% assign month = date_tokens[1] | default: "" %}
-  {% assign year = date_tokens[2] | default: "" %}
-  {% assign date_label = post.date %}
-  {% if month != "" and year != "" %}
-    {% assign date_label = month | append: " " | append: year %}
-  {% endif %}
+  {% assign date_key = post.date %}
+  {% assign date_parts = date_key | split: "-" %}
+  {% assign year_full = date_parts[0] %}
+  {% assign month_num = date_parts[1] %}
+  {% assign day = date_parts[2] | plus: 0 %}
+  {% assign short_year = year_full | slice: 2, 2 %}
+  {% assign short_month = month_num %}
+  {% case month_num %}
+    {% when "01" %}{% assign short_month = "Jan" %}
+    {% when "02" %}{% assign short_month = "Feb" %}
+    {% when "03" %}{% assign short_month = "Mar" %}
+    {% when "04" %}{% assign short_month = "Apr" %}
+    {% when "05" %}{% assign short_month = "May" %}
+    {% when "06" %}{% assign short_month = "Jun" %}
+    {% when "07" %}{% assign short_month = "Jul" %}
+    {% when "08" %}{% assign short_month = "Aug" %}
+    {% when "09" %}{% assign short_month = "Sep" %}
+    {% when "10" %}{% assign short_month = "Oct" %}
+    {% when "11" %}{% assign short_month = "Nov" %}
+    {% when "12" %}{% assign short_month = "Dec" %}
+  {% endcase %}
+  {% assign day_mod_10 = day | modulo: 10 %}
+  {% assign day_mod_100 = day | modulo: 100 %}
+  {% assign day_suffix = "th" %}
+  {% unless day_mod_100 >= 11 and day_mod_100 <= 13 %}
+    {% if day_mod_10 == 1 %}
+      {% assign day_suffix = "st" %}
+    {% elsif day_mod_10 == 2 %}
+      {% assign day_suffix = "nd" %}
+    {% elsif day_mod_10 == 3 %}
+      {% assign day_suffix = "rd" %}
+    {% endif %}
+  {% endunless %}
+  {% assign date_label = day | append: day_suffix | append: " " | append: short_month | append: " " | append: short_year %}
   {% for tag in tags %}
     {% if tag contains "group-" %}
       {% assign raw_group = tag | remove: "group-" %}
@@ -35,17 +64,24 @@ tagline: Film photography — landscapes, streets, and quiet moments.
       {% endfor %}
     {% endif %}
   {% endfor %}
+  {% assign section_key = date_key %}
   {% assign section_label = date_label %}
   {% if group_name != "" %}
+    {% assign section_key = date_key | append: "|" | append: group_name %}
     {% assign section_label = date_label | append: " | " | append: group_name %}
   {% endif %}
-  {% if section_label != current_group %}
+  {% if section_key != current_group %}
     {% if forloop.index0 != 0 %}</div></section>{% endif %}
+    {% assign section_index = section_index | plus: 1 %}
     <section class="gallery-section">
       <h2 class="gallery-section-title">{{ section_label }}</h2>
       <div class="gallery-grid">
-    {% assign current_group = section_label %}
+    {% assign current_group = section_key %}
     {% assign layout_index = 0 %}
+  {% endif %}
+  {% assign image_loading = "lazy" %}
+  {% if section_index == 0 %}
+    {% assign image_loading = "eager" %}
   {% endif %}
 
   {% assign row = layout_index | divided_by: 3 %}
@@ -83,7 +119,7 @@ tagline: Film photography — landscapes, streets, and quiet moments.
     {% assign col_span = 6 %}
   {% endif %}
   <div class="photo-card-wrap{% if tags contains "hero" %} is-hero{% endif %}" style="--col-span:{{ col_span }}">
-    {% include 'photo_card' post: post %}
+    {% include 'photo_card' post: post, image_loading: image_loading %}
   </div>
   {% assign layout_index = layout_index | plus: 1 %}
 {% endfor %}

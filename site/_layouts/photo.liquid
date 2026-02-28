@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   {% include 'head' %}
-  {% assign posts = site.posts | sort: "id" | reverse %}
+  {% assign posts = site.posts | sort: "date" | reverse %}
   {% assign idx = nil %}
   {% for p in posts %}
     {% if p.url == page.url %}
@@ -77,11 +77,15 @@
       {% if page.date %}<tr><th>Date</th><td>{{ page.date | date_to_string }}</td></tr>{% endif %}
     </table>
 
-    {% if page.tags %}
+    {% assign tags_raw = page.tags | default: "" | strip %}
+    {% if tags_raw != "" %}
     <ul class="tag-list">
-      {% assign tags = page.tags | split: " " %}
+      {% assign tags = tags_raw | split: " " %}
       {% for tag in tags %}
-      <li><a href="{{ site.baseurl }}tags/{{ tag }}/">{{ tag }}</a></li>
+      {% assign clean_tag = tag | strip %}
+      {% if clean_tag != "" %}
+      <li><a href="{{ site.baseurl }}tags/{{ clean_tag }}/">{{ clean_tag }}</a></li>
+      {% endif %}
       {% endfor %}
     </ul>
     {% endif %}
