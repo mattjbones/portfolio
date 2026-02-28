@@ -8,6 +8,8 @@ tagline: Film photography — landscapes, streets, and quiet moments.
 {% assign row_patterns = "6,3,3|3,6,3|3,3,6|6,4,2|6,2,4|4,6,2|4,2,6|2,4,6|3,6,3|3,3,6" | split: "|" %}
 {% assign count = photos | size %}
 {% assign current_group = "" %}
+{% assign pattern_count = row_patterns | size %}
+{% assign layout_index = 0 %}
 {% for post in photos %}
   {% assign tags = post.tags | default: "" | split: " " %}
   {% assign group_name = "" %}
@@ -43,18 +45,46 @@ tagline: Film photography — landscapes, streets, and quiet moments.
       <h2 class="gallery-section-title">{{ section_label }}</h2>
       <div class="gallery-grid">
     {% assign current_group = section_label %}
+    {% assign layout_index = 0 %}
   {% endif %}
-  {% assign idx = forloop.index0 %}
-  {% assign row = idx | divided_by: 3 %}
-  {% assign pos = idx | modulo: 3 %}
-  {% assign pattern_index = row | modulo: 6 %}
+
+  {% assign row = layout_index | divided_by: 3 %}
+  {% assign pos = layout_index | modulo: 3 %}
+  {% assign pattern_index = row | modulo: pattern_count %}
   {% assign pattern = row_patterns[pattern_index] | split: "," %}
   {% assign col_span = pattern[pos] %}
+  {% assign next_tags = "" | split: " " %}
+  {% unless forloop.last %}
+    {% assign next_post = photos[forloop.index] %}
+    {% assign next_tags = next_post.tags | default: "" | split: " " %}
+  {% endunless %}
+
+  {% unless tags contains "hero" %}
+    {% if next_tags contains "hero" and col_span == "3" %}
+      {% assign col_span = 4 %}
+    {% endif %}
+  {% endunless %}
+
   {% if tags contains "hero" %}
+    {% if col_span != "6" %}
+      {% for jump in (1..3) %}
+        {% assign probe_index = layout_index | plus: jump %}
+        {% assign probe_row = probe_index | divided_by: 3 %}
+        {% assign probe_pos = probe_index | modulo: 3 %}
+        {% assign probe_pattern_index = probe_row | modulo: pattern_count %}
+        {% assign probe_pattern = row_patterns[probe_pattern_index] | split: "," %}
+        {% assign probe_span = probe_pattern[probe_pos] %}
+        {% if probe_span == "6" %}
+          {% assign layout_index = probe_index %}
+          {% break %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
     {% assign col_span = 6 %}
   {% endif %}
   <div class="photo-card-wrap{% if tags contains "hero" %} is-hero{% endif %}" style="--col-span:{{ col_span }}">
     {% include 'photo_card' post: post %}
   </div>
+  {% assign layout_index = layout_index | plus: 1 %}
 {% endfor %}
 {% if count > 0 %}</div></section>{% endif %}
