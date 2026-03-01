@@ -12,6 +12,7 @@ continuous_gallery: true
 {% assign pattern_count = row_patterns | size %}
 {% assign layout_index = 0 %}
 {% assign section_index = -1 %}
+{% assign hero_buffer = 0 %}
 {% for post in photos %}
   {% assign tags = post.tags | default: "" | split: " " %}
   {% assign group_name = "" %}
@@ -78,6 +79,7 @@ continuous_gallery: true
       <div class="gallery-grid">
     {% assign current_group = section_key %}
     {% assign layout_index = 0 %}
+    {% assign hero_buffer = 0 %}
   {% endif %}
   {% assign image_loading = "lazy" %}
   {% if section_index == 0 %}
@@ -89,17 +91,21 @@ continuous_gallery: true
   {% assign pattern_index = row | modulo: pattern_count %}
   {% assign pattern = row_patterns[pattern_index] | split: "," %}
   {% assign col_span = pattern[pos] %}
+  {% assign row_span = 2 %}
+  {% assign orientation = post.orientation | default: "landscape" %}
+  {% assign is_portrait_card = false %}
+  {% if orientation == "portrait" %}
+    {% assign is_portrait_card = true %}
+  {% endif %}
   {% assign next_tags = "" | split: " " %}
   {% unless forloop.last %}
     {% assign next_post = photos[forloop.index] %}
     {% assign next_tags = next_post.tags | default: "" | split: " " %}
   {% endunless %}
-
-  {% unless tags contains "hero" %}
-    {% if next_tags contains "hero" and col_span == "3" %}
-      {% assign col_span = 4 %}
-    {% endif %}
-  {% endunless %}
+  {% assign hero_nearby = false %}
+  {% if hero_buffer > 0 or next_tags contains "hero" %}
+    {% assign hero_nearby = true %}
+  {% endif %}
 
   {% if tags contains "hero" %}
     {% if col_span != "6" %}
@@ -117,10 +123,25 @@ continuous_gallery: true
       {% endfor %}
     {% endif %}
     {% assign col_span = 6 %}
+    {% assign row_span = 4 %}
+    {% if orientation == "portrait" %}
+      {% assign row_span = 8 %}
+    {% endif %}
+  {% elsif orientation == "portrait" %}
+    {% assign col_span = 3 %}
+    {% assign row_span = 3 %}
+  {% elsif hero_nearby %}
+    {% assign col_span = 3 %}
   {% endif %}
-  <div class="photo-card-wrap{% if tags contains "hero" %} is-hero{% endif %}" style="--col-span:{{ col_span }}">
+
+  <div class="photo-card-wrap{% if tags contains "hero" %} is-hero{% endif %}{% if is_portrait_card %} is-portrait{% endif %}" style="--col-span:{{ col_span }}; --row-span:{{ row_span }}">
     {% include 'photo_card' post: post, image_loading: image_loading %}
   </div>
+  {% if tags contains "hero" %}
+    {% assign hero_buffer = row_span %}
+  {% elsif hero_buffer > 0 %}
+    {% assign hero_buffer = hero_buffer | minus: 1 %}
+  {% endif %}
   {% assign layout_index = layout_index | plus: 1 %}
 {% endfor %}
 {% if count > 0 %}</div></section>{% endif %}
