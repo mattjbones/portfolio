@@ -60,15 +60,6 @@ portfolio/
 3. If output looks good, run publish: `./scripts/new-photos.sh YYYY-MM-DD`
 4. Open new files in `site/_posts/` and fill remaining fields (`description`, `tags`, `exposure_compensation`)
 
-1. Drop scans (JPEGs) and darktable XMP sidecars into `uploads/YYYY-MM-DD/`
-   - XMP sidecars must be named `<file>.jpg.xmp` alongside each JPEG
-2. Run `./scripts/new-photos.sh YYYY-MM-DD` (add `--dry-run` to run locally first)
-   - Produces 80% quality mains and 50% quality thumbs in `processed/YYYY-MM-DD/`
-   - Uploads both sets to R2
-   - Creates post stubs in `site/_posts/` with XMP metadata pre-populated
-   - Deletes `processed/` on success; `uploads/` is kept (re-runs are safe)
-3. Fill in any remaining metadata fields in each new post (description, tags, exposure_compensation)
-
 ---
 
 ## Scripts
