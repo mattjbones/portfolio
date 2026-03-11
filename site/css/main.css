@@ -200,7 +200,7 @@ img {
 .gallery-section-title {
   position: sticky;
   bottom: 0.75rem;
-  z-index: 25;
+  z-index: 10;
   display: inline-flex;
   align-self: flex-end;
   order: 2;
