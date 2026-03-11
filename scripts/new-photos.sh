@@ -243,11 +243,25 @@ parse_xmp() {
 # ---------------------------------------------------------------------------
 # Create a post stub for one photo
 # ---------------------------------------------------------------------------
+detect_orientation() {
+  local image_file="$1"
+  local dims
+  dims="$("$CONVERT" "$image_file" -format '%wx%h' info:)"
+  local width="${dims%x*}"
+  local height="${dims#*x}"
+  if [[ "$height" -gt "$width" ]]; then
+    echo "portrait"
+  else
+    echo "landscape"
+  fi
+}
+
 create_post() {
   local filename="$1"
   local date="$2"
   local orig_url="$3"
   local thumb_url="$4"
+  local orientation="$5"
 
   local slug="${filename%.*}"
   local file_slug="${slug//_/-}"
@@ -277,6 +291,7 @@ exposure_compensation: box
 camera: $(yaml_quote "$xmp_camera")
 lens: $(yaml_quote "$xmp_lens")
 location: $(yaml_quote "$xmp_location")
+orientation: ${orientation}
 tags:
 image: $(yaml_quote "$orig_url")
 thumb: $(yaml_quote "$thumb_url")
@@ -409,7 +424,16 @@ mkdir -p "$POSTS_DIR"
 for src_jpg in "${JPEGS[@]}"; do
   src_filename="$(basename "$src_jpg")"
   filename="$(normalize_output_filename "$src_filename")"
-  xmp_file="${src_jpg}.xmp"
+  # Find XMP sidecar: match IMG_XXXX.*.xmp (e.g. .jpg.xmp, .tif.xmp)
+  stem="${src_jpg%.*}"
+  base_stem="${stem##*/}"
+  xmp_file=""
+  for candidate in "$UPLOADS_DIR/$base_stem".*.xmp; do
+    if [[ -f "$candidate" ]]; then
+      xmp_file="$candidate"
+      break
+    fi
+  done
   encoded_filename="$(url_encode_segment "$filename")"
 
   parse_xmp "$xmp_file"
@@ -421,7 +445,9 @@ for src_jpg in "${JPEGS[@]}"; do
     thumb_url="$LOCAL_PUBLIC_URL/thumbs/$DATE/$encoded_filename"
   fi
 
-  create_post "$filename" "$DATE" "$orig_url" "$thumb_url"
+  orientation="$(detect_orientation "$MAINS_DIR/$filename")"
+
+  create_post "$filename" "$DATE" "$orig_url" "$thumb_url" "$orientation"
 done
 echo ""
 
