@@ -6,7 +6,7 @@ continuous_gallery: true
 ---
 
 {% assign photos = site.posts | sort: "date" | reverse %}
-{% assign row_patterns = "6,3,3|3,6,3|3,3,6|4,4,4|5,4,3|3,4,5|4,5,3" | split: "|" %}
+{% assign row_patterns = "6,3,3|3,6,3|3,3,6" | split: "|" %}
 {% assign count = photos | size %}
 {% assign current_group = "" %}
 {% assign pattern_count = row_patterns | size %}
@@ -94,14 +94,11 @@ continuous_gallery: true
     {% assign is_hero = true %}
   {% endif %}
 
+  {% assign is_wide = false %}
   {% if is_hero %}
-    {% if is_portrait_card %}
-      {% assign col_span = 4 %}
-      {% assign row_span = 5 %}
-    {% else %}
-      {% assign col_span = 6 %}
-      {% assign row_span = 3 %}
-    {% endif %}
+    {% assign col_span = 6 %}
+    {% assign row_span = 4 %}
+    {% assign is_wide = true %}
   {% elsif is_portrait_card %}
     {% assign col_span = 3 %}
     {% assign row_span = 4 %}
@@ -112,10 +109,11 @@ continuous_gallery: true
     {% assign pattern = row_patterns[pattern_index] | split: "," %}
     {% assign col_span = pattern[pos] %}
     {% assign row_span = 2 %}
+    {% if col_span == "6" %}{% assign is_wide = true %}{% endif %}
     {% assign layout_index = layout_index | plus: 1 %}
   {% endif %}
 
-  <div class="photo-card-wrap{% if is_hero %} is-hero{% endif %}{% if is_portrait_card %} is-portrait{% endif %}" style="--col-span:{{ col_span }}; --row-span:{{ row_span }}">
+  <div class="photo-card-wrap{% if is_hero %} is-hero{% endif %}{% if is_portrait_card %} is-portrait{% endif %}{% if is_wide %} is-wide{% endif %}" style="--col-span:{{ col_span }}; --row-span:{{ row_span }}">
     {% include 'photo_card' post: post, image_loading: image_loading %}
   </div>
 {% endfor %}
