@@ -110,19 +110,10 @@ layout: gallery
 </section>
 
 <section class="gallery-section">
-  <div class="gallery-grid">
+  <div class="gallery-squares">
   {% for post in photos %}
     {% if post.tags and post.tags contains page.title %}
-    {% assign orientation = post.orientation | default: "landscape" %}
-    {% assign col_span = 4 %}
-    {% assign row_span = 2 %}
-    {% assign is_portrait_card = false %}
-    {% if orientation == "portrait" %}
-      {% assign col_span = 3 %}
-      {% assign row_span = 4 %}
-      {% assign is_portrait_card = true %}
-    {% endif %}
-    <div class="photo-card-wrap{% if is_portrait_card %} is-portrait{% endif %}" style="--col-span:{{ col_span }}; --row-span:{{ row_span }}">
+    <div class="square-item">
       {% assign disable_hero = true %}
       {% include 'photo_card' post: post, image_loading: "lazy" %}
     </div>
