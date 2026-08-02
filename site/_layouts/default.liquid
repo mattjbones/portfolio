@@ -11,7 +11,7 @@
     {{ content }}
   </main>
   <footer class="site-footer">
-    &copy; {{ site.time | date: "%Y" }} {{ site.author.name }}
+    &copy; {{ site.time | date: "%Y" }} <a class="site-footer-link" href="https://mastodon.social/@{{ site.author.username }}" rel="me noopener" target="_blank">{{ site.author.name }}</a>
   </footer>
 </body>
 </html>
