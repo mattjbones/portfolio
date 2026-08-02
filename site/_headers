@@ -1,10 +1,8 @@
 /public/photos/*
   Cache-Control: public, max-age=31536000, immutable
 
-# CSS/JS are linked with a ?v=<build timestamp> query, so a new deploy always
-# produces a new URL. Safe to cache for a year: stale copies are never reused.
 /css/*
-  Cache-Control: public, max-age=31536000
+  Cache-Control: public, max-age=86400
 
 /public/js/*
-  Cache-Control: public, max-age=31536000
+  Cache-Control: public, max-age=86400
