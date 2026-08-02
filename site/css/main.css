@@ -140,10 +140,22 @@ img {
 .site-header-inner {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 0 clamp(8px, 2vw, 12px);
+  padding: 0 50px;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+}
+
+@media (max-width: 700px) {
+  .site-header-inner {
+    padding: 0 25px;
+  }
+}
+
+@media (max-width: 300px) {
+  .site-header-inner {
+    padding: 0 5px;
+  }
 }
 
 .site-title {
@@ -291,6 +303,43 @@ img {
   .photo-card-wrap              { grid-column: span 1; }
   .photo-card-wrap.is-portrait  { --row-span: 3; }
   .photo-card-wrap.is-hero      { grid-column: 1 / -1; --row-span: 2; }
+}
+
+/* ── Square gallery (tag pages) ──
+   Uniform 4-col grid of squares. Orientation is ignored: every card is the
+   same size, so rows always tile flush with no gaps. */
+.gallery-squares {
+  order: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--gap);
+}
+
+.square-item {
+  aspect-ratio: 1 / 1;
+  min-width: 0;
+}
+
+.square-item .photo-card,
+.square-item .photo-card a {
+  height: 100%;
+}
+
+.square-item .photo-card img {
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 900px) {
+  .gallery-squares {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .gallery-squares {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 /* ── Photo card ── */
@@ -637,6 +686,19 @@ body.photo-page {
 /* ── Tag page / gallery page header ── */
 .page-header {
   margin-bottom: 1.5rem;
+  padding-left: 100px;
+}
+
+@media (max-width: 700px) {
+  .page-header {
+    padding-left: 50px;
+  }
+}
+
+@media (max-width: 300px) {
+  .page-header {
+    padding-left: 20px;
+  }
 }
 
 .page-header h1 {
@@ -658,8 +720,20 @@ body.photo-page {
 
 .tag-meta-summary {
   margin: 0 0 1.25rem;
-  padding: 0.2rem 0 1.25rem;
+  padding: 0.2rem 0 1.25rem 100px;
   border-bottom: 1px solid var(--border);
+}
+
+@media (max-width: 700px) {
+  .tag-meta-summary {
+    padding-left: 50px;
+  }
+}
+
+@media (max-width: 300px) {
+  .tag-meta-summary {
+    padding-left: 20px;
+  }
 }
 
 .tag-meta-list {
@@ -720,4 +794,13 @@ body.photo-page {
   text-align: center;
   font-size: 0.8rem;
   color: var(--fg-muted);
+}
+
+.site-footer-link {
+  color: inherit;
+  transition: color 0.15s;
+}
+
+.site-footer-link:hover {
+  color: var(--fg);
 }
