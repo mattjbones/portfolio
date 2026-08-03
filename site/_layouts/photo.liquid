@@ -88,7 +88,9 @@
     </nav>
   </div>
 
-  <section class="photo-details">
+  {% assign body = content | strip %}
+  <section class="photo-details{% if body != "" %} photo-details--with-story{% endif %}">
+    <div class="photo-details-main">
     <h1 class="photo-details-title">{{ page.title }}</h1>
     {% if page.description %}<p class="photo-details-desc">{{ page.description }}</p>{% endif %}
 
@@ -117,7 +119,11 @@
       {% endfor %}
     </ul>
     {% endif %}
+    </div>
 
+    {% if body != "" %}
+    <div class="photo-details-story">{{ content }}</div>
+    {% endif %}
   </section>
   <script src="{{ site.baseurl }}public/js/photo-nav.js"></script>
 </body>
