@@ -218,6 +218,7 @@ parse_xmp() {
   xmp_camera=""
   xmp_lens=""
   xmp_location=""
+  xmp_exposure="box"
 
   [[ -f "$xmp_file" ]] || return 0
 
@@ -238,6 +239,13 @@ parse_xmp() {
   xmp_camera="$(_xmp_extract 'Camera')"
   xmp_lens="$(_xmp_extract 'Lens')"
   xmp_location="$(_xmp_extract 'Location')"
+
+  # Film Speed may carry a push/pull in brackets, e.g. "400(+1)" or "400 (-2)".
+  # Split it so film_speed stays numeric and the stop lands in exposure.
+  if [[ "$xmp_film_speed" =~ ^([0-9]+)[[:space:]]*\(([+-][0-9]+)\)$ ]]; then
+    xmp_film_speed="${BASH_REMATCH[1]}"
+    xmp_exposure="${BASH_REMATCH[2]}"
+  fi
 }
 
 # ---------------------------------------------------------------------------
@@ -287,7 +295,7 @@ film_format: $(yaml_quote "$xmp_film_format")
 film_speed: $(yaml_quote "$xmp_film_speed")
 film_type: $(yaml_quote "$xmp_film_type")
 developed_by: $(yaml_quote "$xmp_developed_by")
-exposure_compensation: box
+exposure_compensation: $(yaml_quote "$xmp_exposure")
 camera: $(yaml_quote "$xmp_camera")
 lens: $(yaml_quote "$xmp_lens")
 location: $(yaml_quote "$xmp_location")
