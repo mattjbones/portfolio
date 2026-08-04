@@ -601,6 +601,81 @@ body.photo-page {
   padding: 4rem 1.5rem 6rem;
 }
 
+/* With a story (post body), widen and split into details | rule | story.
+   Without one the section keeps its original single-column layout. */
+.photo-details--with-story {
+  max-width: 1100px;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 3rem;
+  align-items: stretch;
+}
+
+/* Story is centered against the details column; the rule spans the full
+   height of the taller column rather than just the text. */
+.photo-details--with-story .photo-details-story {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 3rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.photo-details-story > *:first-child {
+  margin-top: 0;
+}
+
+.photo-details-story > *:last-child {
+  margin-bottom: 0;
+}
+
+.photo-details-story p {
+  margin-bottom: 1rem;
+}
+
+.photo-details-story a {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.photo-details-story em {
+  font-style: italic;
+}
+
+.photo-details-story h2,
+.photo-details-story h3 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  margin: 1.5rem 0 0.6rem;
+  color: #fff;
+}
+
+.photo-details-story blockquote {
+  margin: 1.25rem 0;
+  padding-left: 1rem;
+  border-left: 2px solid rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
+/* Stack on narrow viewports: the rule becomes a divider above the story */
+@media (max-width: 800px) {
+  .photo-details--with-story {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .photo-details--with-story .photo-details-story {
+    padding-left: 0;
+    padding-top: 2rem;
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+  }
+}
+
 .photo-details-title {
   font-family: var(--font-hand);
   font-size: 2.2rem;
