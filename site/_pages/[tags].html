@@ -58,6 +58,7 @@ layout: gallery
 <section class="page-header">
   <h1>{{ page.title }}</h1>
   <p>about {{ tag_count }} images</p>
+  {% if page.meta.blurb %}<p class="tag-blurb">{{ page.meta.blurb }}</p>{% endif %}
 </section>
 
 <section class="tag-meta-summary" aria-label="Tag metadata summary">

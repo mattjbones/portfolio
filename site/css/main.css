@@ -793,6 +793,15 @@ body.photo-page {
   font-size: 0.9rem;
 }
 
+/* Optional per-tag blurb, authored in _data/tags/<tag>.yml */
+.page-header .tag-blurb {
+  max-width: 46rem;
+  margin-top: 0.9rem;
+  color: var(--fg);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
 .tag-meta-summary {
   margin: 0 0 1.25rem;
   padding: 0.2rem 0 1.25rem 100px;
