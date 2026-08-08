@@ -94,11 +94,24 @@ continuous_gallery: true
     {% assign is_hero = true %}
   {% endif %}
 
+  {% assign ends_section = true %}
+  {% unless forloop.last %}
+    {% assign next_index = forloop.index0 | plus: 1 %}
+    {% assign next_post = photos[next_index] %}
+    {% if next_post.date == date_key %}
+      {% assign ends_section = false %}
+    {% endif %}
+  {% endunless %}
+
   {% assign is_wide = false %}
   {% if is_hero %}
     {% assign col_span = 6 %}
     {% assign row_span = 4 %}
     {% assign is_wide = true %}
+  {% elsif is_portrait_card and ends_section %}
+    {% comment %} A trailing portrait can't be backfilled by dense packing once its section ends, so keep it short. {% endcomment %}
+    {% assign col_span = 3 %}
+    {% assign row_span = 2 %}
   {% elsif is_portrait_card %}
     {% assign col_span = 3 %}
     {% assign row_span = 4 %}
