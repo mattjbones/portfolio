@@ -8,6 +8,11 @@
 {% assign meta_description = site.description %}
 {% if page.description %}
   {% assign meta_description = page.description %}
+{% elsif page.meta and page.meta.blurb %}
+  {% assign blurb_paragraphs = page.meta.blurb | split: "
+
+" %}
+  {% assign meta_description = blurb_paragraphs[0] | strip_newlines %}
 {% endif %}
 {% assign card_meta = "" %}
 {% if page.camera %}
@@ -73,6 +78,8 @@
   {% assign meta_image = page.thumb %}
 {% elsif page.image %}
   {% assign meta_image = page.image %}
+{% elsif page.meta and page.meta.image %}
+  {% assign meta_image = page.meta.image %}
 {% elsif site.image %}
   {% assign meta_image = site.image %}
 {% endif %}
