@@ -1,9 +1,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="view-transition" content="same-origin">
+{% assign page_title = page.title %}
+{% if page.meta and page.meta.title %}
+  {% assign page_title = page.meta.title %}
+{% endif %}
 {% assign meta_title = site.title %}
-{% if page.title %}
-  {% assign meta_title = page.title | append: " — " | append: site.title %}
+{% if page_title %}
+  {% assign meta_title = page_title | append: " — " | append: site.title %}
 {% endif %}
 {% assign meta_description = site.description %}
 {% if page.description %}
@@ -13,6 +17,9 @@
 
 " %}
   {% assign meta_description = blurb_paragraphs[0] | strip_newlines %}
+  {% if page.meta.title %}
+    {% assign meta_description = page.meta.title | append: ": " | append: meta_description %}
+  {% endif %}
 {% endif %}
 {% assign card_meta = "" %}
 {% if page.camera %}
