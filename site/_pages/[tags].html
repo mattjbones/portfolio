@@ -56,7 +56,7 @@ layout: gallery
 {% assign lenses = lenses_blob | split: "||" %}
 
 <section class="page-header">
-  <h1>{{ page.title }}</h1>
+  <h1>{% if page.meta.title %}{{ page.meta.title }}{% else %}{{ page.title }}{% endif %}</h1>
   <p>about {{ tag_count }} images</p>
   {% if page.meta.blurb %}<p class="tag-blurb">{{ page.meta.blurb | newline_to_br }}</p>{% endif %}
 </section>
